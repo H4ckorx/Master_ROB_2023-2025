@@ -1,0 +1,96 @@
+"""
+Editor: Zeyu YIN M1 EEA Groupe C
+05/10/2023
+
+Partie 2
+Installation du package control
+
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from control.matlab import *
+
+print('-------------------------------------------------------------------------------------')
+print("C'est la partie 2")
+
+v1 = [ 1 , 2 , 3 , 4 ]
+# v e c t e u r c o l o n n e
+v2 = [ [ 1 ] , [ 2 ] , [ 3 ] , [ 4 ] ]
+# m a t r i c e
+m1 = [ [ 1 , 2 , 3 ] , [ 4 , 5 , 6 ] , [ 7 , 8 , 9 ] ]
+
+num = [ 1.0 ]
+den = [ 1.0 , 2.0 , 3.0 ]
+H = tf (num , den )
+print ("La fonction de transfert H est egale a: " , H)
+
+y,T = step(H,linspace(0,5,500))
+"""
+Le systeme H dans le periode linspace(0,5,500)
+
+"""
+
+
+plt.figure()
+plt.plot(T.T,y.T)
+plt.show()
+
+
+for i in range (0,5):
+    print("i a pour valeur",i)
+
+
+print('-------------------------------------------------------------------------------------')
+print("C'est la partie 3")
+
+"""
+Q1:
+    On choisit le vecteur d'état [i(t) ω(t) θ(t)].T parcequ'ils changent avec le temps.
+    On ne choisit pas Em(t) et γ(t) comme les vecteurs d'état c'est parceque Em(t) a une
+    relation proportionnelle avec ω(t) et θ(t) a une relation proportionnelle avec i(t)
+    
+"""
+R = 1.52
+L = 2.2e-3
+Ke = 0.127
+Km = 0.127
+fv = 5.06e-5
+J = 8.3e-5
+
+
+"""
+Q2:
+    X'(t)=[i'(t), ω'(t), θ'(t)].T
+         =[[-R/L,-Ke/Ln,1/L],[Km/J,fv/J,0],[0,1,0]] @ [i(t) ω(t) θ(t)].T + [1/L,0,0].T @ u(t)
+          
+         
+    Y(t)=[Q,W].T
+        =[[0,0,1],[0,1,0]] @ [i(t) ω(t) θ(t)].T + [0,0].T @ u(t)
+        
+"""
+
+# Matrices d'état du système
+A = np.array([[-R/L, -Ke/L, 1/L],
+              [Km/J, fv/J, 0],
+              [0, 1, 0]])
+
+B = np.array([[1/L, 0, 0]]).T
+
+
+C = np.array([[0, 0, 1],
+              [0, 1, 0]])
+
+D = np.array([[0, 0]]).T
+
+#Fonction de MCC
+def MCC(t,etat,u):
+    x_t = np.dot(A,etat)+np.dot(B,u)
+    y = np.dot(C,etat)+np.dot(D,u)
+    
+    return x_t,y
+
+#Fonction principal
+
+
+
