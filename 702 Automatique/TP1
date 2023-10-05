@@ -10,7 +10,7 @@ Installation du package control
 import numpy as np
 import matplotlib.pyplot as plt
 from control.matlab import *
-
+from scipy import signal
 print('-------------------------------------------------------------------------------------')
 print("C'est la partie 2")
 
@@ -98,10 +98,11 @@ def MCC():
 
     
     sys_ss = ss(A,B,C,D)
-    print(sys_ss)
+    sys_tf = tf(sys_ss)
+    print(sys_tf)
     
     
-    y,T=step(sys_ss,np.linspace(0,100,5000))
+    y,T=step(sys_ss)
 
 
     plt.plot(T.T,y.T)
@@ -132,9 +133,9 @@ def MCC_i():
 
 
 
-    
-    sys_ss_i = ss(A,B,C_courrant,D)
-    print(sys_ss_i)
+    sys_ss_i = ss(A,B,C_courrant,D)   
+    sys_tf = tf(sys_ss_i)
+    print(sys_tf)
     
     
     y,T=step(sys_ss_i,np.linspace(0,100,5000))
@@ -164,8 +165,10 @@ def MCC_a():
 
     
     sys_ss_a = ss(A,B,C_angle,D)
-    print(sys_ss_a)
     
+    sys_tf = tf(sys_ss_a)
+    print(sys_tf)
+
     
     y,T=step(sys_ss_a,np.linspace(0,100,5000))
 
@@ -177,6 +180,15 @@ def MCC_a():
     plt.tight_layout()
     plt.figure()
     return sys_ss_a
+"""
+Q5:
+    Pour calculer la fonction de transfert du moteur qui relie l’entrée u(t)
+à la vitesse angulaire ω(t) du moteur. Je choisis C_angle=[0,1,0], et on obtiens que
+le systeme u(t) et w(t) est second ordre
+
+
+"""
+
 MCC_a()
 
 """
@@ -191,13 +203,63 @@ dans le graphique de la vitesse angulaire. Le pic de courant est plus lié
 
 
 
-"""
-Q5:
-    Pour calculer la fonction de transfert du moteur qui relie l’entrée u(t)
-à la vitesse angulaire ω(t) du moteur. Je choisis C_angle=[0,1,0]
-
 
 """
+Deuxieme partie
 
-tf_sys_w=ss2tf(sys_ss_a)
+
+
+Q6:
+    D'abord il faut savoir la séquence u(k) qui est fournie au système à chaque échantillon k.
+    u(k) peut-être une séquence de valeurs discrètes correspondant aux échantillons 
+    de mon signal d'entrée.
+    
+    Ensuite il faut savoir la séquence y(k), comme y(0) et y(1), pour commencer l'itération 
+    des équations.
+    
+    A la fin, il faut savoir l'intervalle de temps discret entre les échantillons. C'est 
+    pour déterminer le temps entre chaque échantillon k.
+"""
+
+"""
+Q7:
+    
+"""
+
+    
+def equ2(N):  # N faut être supérieur à 2
+    
+    u = u = np.ones(N)  #{uk = 1 ∀k > 0}
+    y = np.zeros((2*N-2, 1))  #Il a besoin au moins 2 éléments pour faire l'itération
+    
+    a1 = 1
+    a2 = 0.1
+    a3 = 0.7   #Les coefs pour l'équation (3)
+    
+    for k in range(2,N):
+        y_k2 = a1*u[k] - a2*y[k - 1] - a3*y[k - 2]
+        y[k-2+N] = y_k2 #Ajouter le calcul y_k2 à la fin d'une liste Python appelée y
+        
+    return y
+
+# On fait un test
+N = 8
+
+result = equ2(N)
+
+print(result)
+
+
+        
+    
+    
+
+
+
+
+
+
+
+
+
 
