@@ -1,0 +1,58 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity TP2_YIN_tb is
+end TP2_YIN_tb;
+
+architecture bhv of TP2_YIN_tb is
+
+
+  -- Instantiate the Latch
+component TP2_YIN
+    Port ( RST : in STD_LOGIC;
+           CLK  : in STD_LOGIC;
+           DATA : in STD_LOGIC;
+           Q : inout STD_LOGIC);
+end component;
+
+signal RST, CLK, DATA, Q : STD_LOGIC;
+begin
+
+c1 : TP2_YIN port map(RST, CLK, DATA, Q);
+  -- Stimulus process
+p1 : process
+  begin
+    -- Initialize signals
+    CLK <= '0';
+    wait for 20ns;
+    CLK <= '1';
+    wait for 20ns;
+end process p1;
+
+
+
+p2 : process
+begin
+
+    DATA <= '0';
+    wait for 10ns;
+    DATA <= '1';
+    wait for 10ns;
+    
+    
+
+end process;
+
+p3 : process
+begin
+    RST <= '1';
+    wait for 5 ns;
+    RST <= '0';
+    wait for 95 ns;
+    RST <= '1';
+    wait for 10 ns;
+    RST <= '0';
+    wait;
+end process p3;
+
+end bhv;
