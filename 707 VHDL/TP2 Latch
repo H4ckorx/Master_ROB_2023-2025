@@ -1,0 +1,29 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+entity TP2_YIN is
+    Port ( RST : in STD_LOGIC;
+           CLK  : in STD_LOGIC;
+           DATA : in STD_LOGIC;
+           Q : inout STD_LOGIC);
+end TP2_YIN;
+
+architecture Behavioral of TP2_YIN is
+
+  signal internal_Q : STD_LOGIC := '0';
+
+begin
+  process (CLK, RST, DATA)
+  begin
+      if (RST = '1') then
+        internal_Q <= '0'; -- Reset
+      elsif (CLK = '1') then
+        internal_Q <= DATA;
+      else
+        internal_Q <= internal_Q;
+      end if;
+  end process;
+  
+  Q <= internal_Q;
+end Behavioral;
