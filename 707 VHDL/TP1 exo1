@@ -1,0 +1,24 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity ex1_YIN is
+    Port ( a : in STD_LOGIC;
+           b : in STD_LOGIC;
+           com : in STD_LOGIC;
+           s : out STD_LOGIC);
+end ex1_YIN;
+
+architecture Behavioral of ex1_YIN is
+
+begin
+    ex1_YIN : process(a,b,com)
+        begin
+        if com = '1' then s <= a;
+        elsif com = '0' then s <= b;
+        end if;
+    end process;    
+    
+
+end Behavioral;
