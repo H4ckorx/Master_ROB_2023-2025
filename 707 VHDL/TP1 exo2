@@ -1,0 +1,23 @@
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+
+
+entity ex2_YIN is
+    Port ( a : in STD_LOGIC_VECTOR(3 downto 0);
+           b : in STD_LOGIC_VECTOR(3 downto 0);
+           sup : out STD_LOGIC;
+           inf : out STD_LOGIC;
+           ega : out STD_LOGIC);
+end ex2_YIN;
+
+architecture Behavioral of ex2_YIN is
+
+begin
+
+sup <= '1' when A>B else '0';
+inf <= '1' when A<B else '0';
+ega <= '1' when A=B else '0';
+
+end Behavioral;
