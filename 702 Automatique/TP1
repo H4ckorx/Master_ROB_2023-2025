@@ -11,6 +11,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from control.matlab import *
 from scipy import signal
+import control as ctrl
+
+
+
+
 print('-------------------------------------------------------------------------------------')
 print("C'est la partie 2")
 
@@ -99,6 +104,7 @@ def MCC():
     
     sys_ss = ss(A,B,C,D)
     sys_tf = tf(sys_ss)
+    print("La fonction de transfert est : ")
     print(sys_tf)
     
     
@@ -135,6 +141,7 @@ def MCC_i():
 
     sys_ss_i = ss(A,B,C_courrant,D)   
     sys_tf = tf(sys_ss_i)
+    print("La fonction de transfert est : ")
     print(sys_tf)
     
     
@@ -167,6 +174,7 @@ def MCC_a():
     sys_ss_a = ss(A,B,C_angle,D)
     
     sys_tf = tf(sys_ss_a)
+    print("La fonction de transfert est : ")
     print(sys_tf)
 
     
@@ -225,39 +233,117 @@ Q6:
 Q7:
     
 """
-
+a1 = 1
+a2 = -0.1
+a3 = 0.7   #Les coefs pour l'équation (3)
     
 def equ2(N):  # N faut être supérieur à 2
     
     u = u = np.ones(N)  #{uk = 1 ∀k > 0}
-    y = np.zeros((2*N-2, 1))  #Il a besoin au moins 2 éléments pour faire l'itération
+    y = np.zeros((N, 1))  #Il a besoin au moins 2 éléments pour faire l'itération
     
-    a1 = 1
-    a2 = 0.1
-    a3 = 0.7   #Les coefs pour l'équation (3)
+
     
     for k in range(2,N):
         y_k2 = a1*u[k] - a2*y[k - 1] - a3*y[k - 2]
-        y[k-2+N] = y_k2 #Ajouter le calcul y_k2 à la fin d'une liste Python appelée y
+        y[k] = y_k2 #Ajouter le calcul y_k2 à la fin d'une liste Python appelée y
         
-    return y
-
-# On fait un test
-N = 8
-
-result = equ2(N)
-
-print(result)
-
-
         
+
+    print("Le vecteur colonne y est: ")
+    print(y)
+
+
+    plt.figure()
+    plt.plot(range(N),y)
+    plt.xlabel('Nombre N')
+    plt.ylabel('Resultat de recurrence y')
+    plt.tight_layout()
+    plt.show()
+
+"""
+Q8:
+    Je visualise le schema 'y(k)-u(k)'
     
+"""
+equ2(50)
     
 
 
 
+"""
+Q9:
+    Utiliser la fonction tf,  la période d’échantillonnage égale à 1s.
+    
+"""
+
+def tf():
+    num=[1]
+    den=[1,-0.1,0.7]
+    H=ctrl.tf(num,den)
+    print(H)
+    y,T= step (H,linspace(0,50,50))
+    plt.figure()
+    plt.plot(T.T,y.T)
+    plt.xlabel('temps')
+    plt.ylabel('Resultat de recurrence y')
+    plt.tight_layout()
+    plt.show()
+    
+tf()
+    
 
 
+"""
+Q10:Transformer l’équation (3) en une représentation d’état discrète
+    que l’on appelera (R1).
+    
+Q11:
+    On uilise la foncetion ss2tf pour montrer qu'il est bien le montage de (4)
+    
+"""
+
+def etatR1_ss2tf():
+    A = np.array([[0,1],[-0.7,0.1]])
+    B = np.array([[0],[1]])
+    C = np.array([[1,0]])
+    D = np.array([[0]])
+    sys=ss(A,B,C,D)
+    sys_tf=ss2tf(sys)
+    y,T=step(sys_tf,linspace(0,50,50))
+    plt.figure()
+    plt.plot(T.T,y.T)
+    plt.xlabel('temps')
+    plt.ylabel('Resultat de recurrence y')
+    plt.tight_layout()
+    plt.show
+
+
+
+etatR1_ss2tf()
+
+
+
+"""
+Q12:On utilise la fonction tf2ss pour obtenir l'etat de systeme
+    
+"""
+    
+
+def tf2ss():
+    num=[1]
+    den=[1,-0.1,0.7]
+    num_array = np.array(num)
+    den_array = np.array(den)
+    A, B, C, D = ctrl.tf2ss(num_array, den_array)
+    print(A)
+    print(B)
+    print(C)
+    print(D)
+    
+
+tf2ss()
+    
 
 
 
