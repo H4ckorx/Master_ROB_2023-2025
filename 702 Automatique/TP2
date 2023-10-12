@@ -1,0 +1,346 @@
+"""
+Editor: Zeyu YIN M1 EEA Groupe C
+05/10/2023
+
+Partie 2
+Installation du package control
+
+"""
+
+import numpy as np
+import matplotlib.pyplot as plt
+from control.matlab import *
+from scipy import signal
+import control as ctrl
+
+
+
+
+print('-------------------------------------------------------------------------------------')
+print("C'est la partie 2")
+
+v1 = [ 1 , 2 , 3 , 4 ]
+# v e c t e u r c o l o n n e
+v2 = [ [ 1 ] , [ 2 ] , [ 3 ] , [ 4 ] ]
+# m a t r i c e
+m1 = [ [ 1 , 2 , 3 ] , [ 4 , 5 , 6 ] , [ 7 , 8 , 9 ] ]
+
+num = [ 1.0 ]
+den = [ 1.0 , 2.0 , 3.0 ]
+H = tf (num , den )
+print ("La fonction de transfert H est egale a: " , H)
+
+y,T = step(H,linspace(0,5,500))
+"""
+Le systeme H dans le periode linspace(0,5,500)
+
+"""
+
+
+#plt.figure()
+#plt.plot(T.T,y.T)
+#plt.show()
+
+
+for i in range (0,5):
+    print("i a pour valeur",i)
+
+
+print('-------------------------------------------------------------------------------------')
+print("C'est la partie 3")
+
+"""
+Q1:
+    On choisit le vecteur d'état [i(t) ω(t) θ(t)].T parcequ'ils changent avec le temps.
+    On ne choisit pas Em(t) et γ(t) comme les vecteurs d'état c'est parceque Em(t) a une
+    relation proportionnelle avec ω(t) et θ(t) a une relation proportionnelle avec i(t)
+    
+"""
+
+
+
+"""
+Q2:
+    X'(t)=[i'(t), ω'(t), θ'(t)].T
+         =[[-R/L,-Ke/L,1/L],[Km/J,-fv/J,0],[0,1,0]] @ [i(t) ω(t) θ(t)].T + [1/L,0,0].T @ u(t)
+          
+         
+    Y(t)=[θ].T
+        =[[0,0,1] @ [i(t) ω(t) θ(t)].T + [0] @ u(t)
+        
+"""
+
+
+
+
+"""
+Q3:
+    J'ai écrit une fonction python (def MCC(), avec la fonction 'ss'pour définir mon systeme'
+    
+"""
+R = 1.52
+L = 2.2e-3
+Ke = 0.127
+Km = 0.127
+fv = 5.06e-5
+J = 8.3e-5
+A = np.array([[-R/L, -Ke/L, 0],
+              [Km/J, -fv/J, 0],
+              [0, 1, 0]])
+
+B = np.array([[1/L, 0, 0]]).T
+
+C = np.array([[0, 0, 1]])
+              
+
+D = np.array([[0]]).T
+
+
+#Fonction de MCC
+def MCC():
+
+
+
+    
+    sys_ss = ss(A,B,C,D)
+    sys_tf = tf(sys_ss)
+    print("La fonction de transfert est : ")
+    print(sys_tf)
+    
+    
+    y,T=step(sys_ss)
+
+
+    plt.plot(T.T,y.T)
+    plt.xlabel('temps')
+    plt.ylabel('angle moteur')
+    plt.title('Courbe θ-t')
+    plt.tight_layout()
+    plt.figure()
+    return sys_ss
+MCC()
+
+"""
+Le pic de courant se produit généralement au démarrage du moteur ou lorsque 
+vous appliquez un changement rapide de tension. Cela est dû à la résistance 
+du moteur (R) dans les équations d'état. Au démarrage, la tension est 
+maximale, ce qui entraîne un courant élevé selon la loi d'Ohm (I = V / R).
+
+"""
+
+"""
+Q4:
+    
+"""
+#Je modifie la matrice C en [1,0,0]
+
+C_courrant = np.array([1,0,0])
+def MCC_i():
+
+
+
+    sys_ss_i = ss(A,B,C_courrant,D)   
+    sys_tf = tf(sys_ss_i)
+    print("La fonction de transfert est : ")
+    print(sys_tf)
+    
+    
+    y,T=step(sys_ss_i,np.linspace(0,100,5000))
+
+
+    plt.plot(T.T,y.T)
+    plt.xlabel('temps')
+    plt.ylabel('Le courant')
+    plt.title('Courbe i-t')
+    plt.tight_layout()
+    plt.figure()
+MCC_i()
+"""
+La courbe représente le courant (i(t)) circulant dans le moteur au fil du temps.
+
+Le pic de courant est directement visible dans le graphique du courant. Comme 
+mentionné précédemment, il se produit au démarrage du moteur ou lors de 
+changements rapides de tension.
+
+"""
+#Je modifie la matrice C en [0,1,0]
+
+C_angle = np.array([0,1,0])
+def MCC_a():
+
+
+
+    
+    sys_ss_a = ss(A,B,C_angle,D)
+    
+    sys_tf = tf(sys_ss_a)
+    print("La fonction de transfert est : ")
+    print(sys_tf)
+
+    
+    y,T=step(sys_ss_a,np.linspace(0,100,5000))
+
+
+    plt.plot(T.T,y.T)
+    plt.xlabel('temps')
+    plt.ylabel('La vitesse de angle')
+    plt.title('Courbe ω-t')
+    plt.tight_layout()
+    plt.figure()
+    return sys_ss_a
+"""
+Q5:
+    Pour calculer la fonction de transfert du moteur qui relie l’entrée u(t)
+à la vitesse angulaire ω(t) du moteur. Je choisis C_angle=[0,1,0], et on obtiens que
+le systeme u(t) et w(t) est second ordre
+
+
+"""
+
+MCC_a()
+
+"""
+La courbe représente la vitesse angulaire (ω(t)) du moteur au fil du temps.
+
+Le pic de courant peut toujours se produire, mais il ne sera pas visible 
+dans le graphique de la vitesse angulaire. Le pic de courant est plus lié 
+à l'angle moteur et au démarrage du moteur.
+
+
+"""
+
+
+
+
+"""
+Deuxieme partie
+
+
+
+Q6:
+    D'abord il faut savoir la séquence u(k) qui est fournie au système à chaque échantillon k.
+    u(k) peut-être une séquence de valeurs discrètes correspondant aux échantillons 
+    de mon signal d'entrée.
+    
+    Ensuite il faut savoir la séquence y(k), comme y(0) et y(1), pour commencer l'itération 
+    des équations.
+    
+    A la fin, il faut savoir l'intervalle de temps discret entre les échantillons. C'est 
+    pour déterminer le temps entre chaque échantillon k.
+"""
+
+"""
+Q7:
+    
+"""
+a1 = 1
+a2 = -0.1
+a3 = 0.7   #Les coefs pour l'équation (3)
+    
+def equ2(N):  # N faut être supérieur à 2
+    
+    u = u = np.ones(N)  #{uk = 1 ∀k > 0}
+    y = np.zeros((N, 1))  #Il a besoin au moins 2 éléments pour faire l'itération
+    
+
+    
+    for k in range(2,N):
+        y_k2 = a1*u[k] - a2*y[k - 1] - a3*y[k - 2]
+        y[k] = y_k2 #Ajouter le calcul y_k2 à la fin d'une liste Python appelée y
+        
+        
+
+    print("Le vecteur colonne y est: ")
+    print(y)
+
+
+    plt.figure()
+    plt.plot(range(N),y)
+    plt.xlabel('Nombre N')
+    plt.ylabel('Resultat de recurrence y')
+    plt.tight_layout()
+    plt.show()
+
+"""
+Q8:
+    Je visualise le schema 'y(k)-u(k)'
+    
+"""
+equ2(50)
+    
+
+
+
+"""
+Q9:
+    Utiliser la fonction tf,  la période d’échantillonnage égale à 1s.
+    
+"""
+
+def tf():
+    num=[1]
+    den=[1,-0.1,0.7]
+    H=ctrl.tf(num,den)
+    print(H)
+    y,T= step (H,linspace(0,50,50))
+    plt.figure()
+    plt.plot(T.T,y.T)
+    plt.xlabel('temps')
+    plt.ylabel('Resultat de recurrence y')
+    plt.tight_layout()
+    plt.show()
+    
+tf()
+    
+
+
+"""
+Q10:Transformer l’équation (3) en une représentation d’état discrète
+    que l’on appelera (R1).
+    
+Q11:
+    On uilise la foncetion ss2tf pour montrer qu'il est bien le montage de (4)
+    
+"""
+
+def etatR1_ss2tf():
+    A = np.array([[0,1],[-0.7,0.1]])
+    B = np.array([[0],[1]])
+    C = np.array([[1,0]])
+    D = np.array([[0]])
+    sys=ss(A,B,C,D)
+    sys_tf=ss2tf(sys)
+    y,T=step(sys_tf,linspace(0,50,50))
+    plt.figure()
+    plt.plot(T.T,y.T)
+    plt.xlabel('temps')
+    plt.ylabel('Resultat de recurrence y')
+    plt.tight_layout()
+    plt.show
+
+
+
+etatR1_ss2tf()
+
+
+
+"""
+Q12:On utilise la fonction tf2ss pour obtenir l'etat de systeme
+    
+"""
+    
+
+def tf2ss():
+    num=[1]
+    den=[1,-0.1,0.7]
+    num_array = np.array(num)
+    den_array = np.array(den)
+    A, B, C, D = ctrl.tf2ss(num_array, den_array)
+    print(A)
+    print(B)
+    print(C)
+    print(D)
+    
+
+tf2ss()
+    
