@@ -1,10 +1,12 @@
+# -*- coding: utf-8 -*-
 """
-Editor: Zeyu YIN M1 EEA Groupe C
-05/10/2023
+editor : zeyu.yin@etu.umontpellier.fr
 
-Partie 2
-Installation du package control
+TP 2 - Automatique
 
+11/10/2023
+
+M1 EEA Groupe C
 """
 
 import numpy as np
@@ -13,89 +15,33 @@ from control.matlab import *
 from scipy import signal
 import control as ctrl
 
-
-
-
-print('-------------------------------------------------------------------------------------')
-print("C'est la partie 2")
-
-v1 = [ 1 , 2 , 3 , 4 ]
-# v e c t e u r c o l o n n e
-v2 = [ [ 1 ] , [ 2 ] , [ 3 ] , [ 4 ] ]
-# m a t r i c e
-m1 = [ [ 1 , 2 , 3 ] , [ 4 , 5 , 6 ] , [ 7 , 8 , 9 ] ]
-
-num = [ 1.0 ]
-den = [ 1.0 , 2.0 , 3.0 ]
-H = tf (num , den )
-print ("La fonction de transfert H est egale a: " , H)
-
-y,T = step(H,linspace(0,5,500))
 """
-Le systeme H dans le periode linspace(0,5,500)
-
+Partie 2
 """
+#Q1:Que valent les matrices C et D ?
+R = 1
+L = 4e-3
+Ke = 0.1
+Km = 0.1
+fv = 3e-3
+J = 2e-3
 
+A = np.array([[-R/L,-Ke/L,0],[Km/J,-fv/J,0],[0,1,0]])
 
-#plt.figure()
-#plt.plot(T.T,y.T)
-#plt.show()
-
-
-for i in range (0,5):
-    print("i a pour valeur",i)
-
-
-print('-------------------------------------------------------------------------------------')
-print("C'est la partie 3")
-
-"""
-Q1:
-    On choisit le vecteur d'état [i(t) ω(t) θ(t)].T parcequ'ils changent avec le temps.
-    On ne choisit pas Em(t) et γ(t) comme les vecteurs d'état c'est parceque Em(t) a une
-    relation proportionnelle avec ω(t) et θ(t) a une relation proportionnelle avec i(t)
-    
-"""
-
-
-
-"""
-Q2:
-    X'(t)=[i'(t), ω'(t), θ'(t)].T
-         =[[-R/L,-Ke/L,1/L],[Km/J,-fv/J,0],[0,1,0]] @ [i(t) ω(t) θ(t)].T + [1/L,0,0].T @ u(t)
-          
-         
-    Y(t)=[θ].T
-        =[[0,0,1] @ [i(t) ω(t) θ(t)].T + [0] @ u(t)
-        
-"""
-
-
-
-
-"""
-Q3:
-    J'ai écrit une fonction python (def MCC(), avec la fonction 'ss'pour définir mon systeme'
-    
-"""
-R = 1.52
-L = 2.2e-3
-Ke = 0.127
-Km = 0.127
-fv = 5.06e-5
-J = 8.3e-5
-A = np.array([[-R/L, -Ke/L, 0],
-              [Km/J, -fv/J, 0],
-              [0, 1, 0]])
-
-B = np.array([[1/L, 0, 0]]).T
+B = np.array([[1/L],[0],[0]])
 
 C = np.array([[0, 0, 1]])
               
+D = np.array([[0]])
 
-D = np.array([[0]]).T
 
-
+"""
+Q2,Q3 et Q4:
+    Ce systeme n'est pas stable parcequ'il y a un pole p1=0
+"""
+print("---------------------------------------------------------")
+print("\n")
+print("Question2,3 et 4 : \n")
 #Fonction de MCC
 def MCC():
 
@@ -103,244 +49,169 @@ def MCC():
 
     
     sys_ss = ss(A,B,C,D)
-    sys_tf = tf(sys_ss)
+    sys_tf = ss2tf(sys_ss)
     print("La fonction de transfert est : ")
+    print("\n")
     print(sys_tf)
+    print("\n")
+    p = ctrl.pole(sys_tf)
+    print("Les poles de la fonction de transfert: ")
+    print("\n")
+    print(p)  
+    print("\n")
     
-    
-    y,T=step(sys_ss)
+    y,T=step(sys_ss,linspace(0,4,1000))
 
-
+    plt.figure()
     plt.plot(T.T,y.T)
     plt.xlabel('temps')
     plt.ylabel('angle moteur')
     plt.title('Courbe θ-t')
     plt.tight_layout()
-    plt.figure()
+    plt.grid()
     return sys_ss
+
 MCC()
 
-"""
-Le pic de courant se produit généralement au démarrage du moteur ou lorsque 
-vous appliquez un changement rapide de tension. Cela est dû à la résistance 
-du moteur (R) dans les équations d'état. Au démarrage, la tension est 
-maximale, ce qui entraîne un courant élevé selon la loi d'Ohm (I = V / R).
-
-"""
-
-"""
-Q4:
-    
-"""
-#Je modifie la matrice C en [1,0,0]
-
-C_courrant = np.array([1,0,0])
-def MCC_i():
+print ("Ce systeme n'est pas stable, pole p1 = 0 \n")
 
 
-
-    sys_ss_i = ss(A,B,C_courrant,D)   
-    sys_tf = tf(sys_ss_i)
-    print("La fonction de transfert est : ")
-    print(sys_tf)
-    
-    
-    y,T=step(sys_ss_i,np.linspace(0,100,5000))
-
-
-    plt.plot(T.T,y.T)
-    plt.xlabel('temps')
-    plt.ylabel('Le courant')
-    plt.title('Courbe i-t')
-    plt.tight_layout()
-    plt.figure()
-MCC_i()
-"""
-La courbe représente le courant (i(t)) circulant dans le moteur au fil du temps.
-
-Le pic de courant est directement visible dans le graphique du courant. Comme 
-mentionné précédemment, il se produit au démarrage du moteur ou lors de 
-changements rapides de tension.
-
-"""
-#Je modifie la matrice C en [0,1,0]
-
-C_angle = np.array([0,1,0])
-def MCC_a():
-
-
-
-    
-    sys_ss_a = ss(A,B,C_angle,D)
-    
-    sys_tf = tf(sys_ss_a)
-    print("La fonction de transfert est : ")
-    print(sys_tf)
-
-    
-    y,T=step(sys_ss_a,np.linspace(0,100,5000))
-
-
-    plt.plot(T.T,y.T)
-    plt.xlabel('temps')
-    plt.ylabel('La vitesse de angle')
-    plt.title('Courbe ω-t')
-    plt.tight_layout()
-    plt.figure()
-    return sys_ss_a
 """
 Q5:
-    Pour calculer la fonction de transfert du moteur qui relie l’entrée u(t)
-à la vitesse angulaire ω(t) du moteur. Je choisis C_angle=[0,1,0], et on obtiens que
-le systeme u(t) et w(t) est second ordre
+    Ce systeme est commandable car le déterminant de la commandabilité n'égale pas zéro
+"""
+print("---------------------------------------------------------")
+print("\n")
+print("Question 5 : \n")
+Co = ctrb(A,B)
+print("La commandbilité du systeme égale : \n")
+print(Co)
+print("\n")
+
+det_Co = np.linalg.det(Co)
+print("Déterminant de la commandabilité égale : \n")
+print(det_Co)
+print("\n")
+print("Ce systeme est commandable")
+
+"""
+Une autre méthode pour calculer la commandabilité:
+    
+AB = A@B
+A2B = A@AB
+
+Co = np.hstack((B,AB,A2B))
+"""
+
+
 
 
 """
-
-MCC_a()
-
-"""
-La courbe représente la vitesse angulaire (ω(t)) du moteur au fil du temps.
-
-Le pic de courant peut toujours se produire, mais il ne sera pas visible 
-dans le graphique de la vitesse angulaire. Le pic de courant est plus lié 
-à l'angle moteur et au démarrage du moteur.
-
-
-"""
-
-
-
-
-"""
-Deuxieme partie
-
-
-
-Q6:
-    D'abord il faut savoir la séquence u(k) qui est fournie au système à chaque échantillon k.
-    u(k) peut-être une séquence de valeurs discrètes correspondant aux échantillons 
-    de mon signal d'entrée.
-    
-    Ensuite il faut savoir la séquence y(k), comme y(0) et y(1), pour commencer l'itération 
-    des équations.
-    
-    A la fin, il faut savoir l'intervalle de temps discret entre les échantillons. C'est 
-    pour déterminer le temps entre chaque échantillon k.
-"""
-
-"""
-Q7:
+Q6 et Q7 :
     
 """
-a1 = 1
-a2 = -0.1
-a3 = 0.7   #Les coefs pour l'équation (3)
-    
-def equ2(N):  # N faut être supérieur à 2
-    
-    u = u = np.ones(N)  #{uk = 1 ∀k > 0}
-    y = np.zeros((N, 1))  #Il a besoin au moins 2 éléments pour faire l'itération
-    
+print("---------------------------------------------------------")
+print("\n")
+print("Question 6 et 7: \n")
+
+s = (-10,-20,-100)
+K = place(A,B,s)
+print("Le matrice de [k1 , k2 , k3] égale : \n")
+print(K)
+print("\n")
+
+#Fonction de MCC_BF
+def MCC_BF():
+
+
 
     
-    for k in range(2,N):
-        y_k2 = a1*u[k] - a2*y[k - 1] - a3*y[k - 2]
-        y[k] = y_k2 #Ajouter le calcul y_k2 à la fin d'une liste Python appelée y
-        
-        
-
-    print("Le vecteur colonne y est: ")
-    print(y)
-
+    sys_ss = ss(A-B*K,B,C-D*K,D)
+    sys_tf = ss2tf(sys_ss)
+    print("La fonction de transfert en boucle fermé est : ")
+    print("\n")
+    print(sys_tf)
+    print("\n")
+    p = ctrl.pole(sys_tf)
+    print("Les poles de la fonction de transfert en boucle fermé : \n")
+    print(p)  
+    print("\n")
+    print("Le systeme en boucle fermé est stable \n")
+    
+    y,T=step(sys_ss,linspace(0,2,1000))
 
     plt.figure()
-    plt.plot(range(N),y)
-    plt.xlabel('Nombre N')
-    plt.ylabel('Resultat de recurrence y')
+    plt.plot(T.T,y.T)
+    plt.xlabel('temps')
+    plt.ylabel('angle moteur')
+    plt.title('Courbe θ-t')
     plt.tight_layout()
-    plt.show()
+    plt.grid()
+    return sys_ss
+
+MCC_BF()
+
 
 """
 Q8:
-    Je visualise le schema 'y(k)-u(k)'
     
 """
-equ2(50)
+print("---------------------------------------------------------")
+print("\n")
+print("Question 8 : \n")
+
+
+Ki = np.array([1])
+K1 = np.block([K,-Ki])
+print("K1 égale : \n")
+print(K1)
+
+
+A1 = np.block([[A-B*K,B*Ki],[-C,0]])
+print("A1 égale : \n")
+print(A1)
+print("\n")
+
+
+B1 = np.block([[np.zeros((3,1))],[1]])
+print("B1 égale : \n")
+print(B1)
+print("\n")
+
+C1 = np.block([C,0])
+print("C1 égale : \n")
+print(C1)
+print("\n")
+
+
+def MCC_blk():
+
+
+
     
-
-
-
-"""
-Q9:
-    Utiliser la fonction tf,  la période d’échantillonnage égale à 1s.
+    sys_blk = ss(A1,B1,C1,D)
+    sys_tf = ss2tf(sys_blk)
+    print("La fonction de transfert en boucle fermé est : ")
+    print("\n")
+    print(sys_tf)
+    print("\n")
+    p = ctrl.pole(sys_tf)
+    print("Les poles de la fonction de transfert en block : \n")
+    print(p)  
+    print("\n")
+    print("Le systeme en block est stable \n")
     
-"""
+    y,T=step(sys_blk,linspace(0,10,1000))
 
-def tf():
-    num=[1]
-    den=[1,-0.1,0.7]
-    H=ctrl.tf(num,den)
-    print(H)
-    y,T= step (H,linspace(0,50,50))
     plt.figure()
     plt.plot(T.T,y.T)
     plt.xlabel('temps')
-    plt.ylabel('Resultat de recurrence y')
+    plt.ylabel('angle moteur')
+    plt.title('Courbe θ-t')
     plt.tight_layout()
-    plt.show()
-    
-tf()
-    
+    plt.grid()
+    return sys_blk
 
 
-"""
-Q10:Transformer l’équation (3) en une représentation d’état discrète
-    que l’on appelera (R1).
-    
-Q11:
-    On uilise la foncetion ss2tf pour montrer qu'il est bien le montage de (4)
-    
-"""
+MCC_blk()
 
-def etatR1_ss2tf():
-    A = np.array([[0,1],[-0.7,0.1]])
-    B = np.array([[0],[1]])
-    C = np.array([[1,0]])
-    D = np.array([[0]])
-    sys=ss(A,B,C,D)
-    sys_tf=ss2tf(sys)
-    y,T=step(sys_tf,linspace(0,50,50))
-    plt.figure()
-    plt.plot(T.T,y.T)
-    plt.xlabel('temps')
-    plt.ylabel('Resultat de recurrence y')
-    plt.tight_layout()
-    plt.show
-
-
-
-etatR1_ss2tf()
-
-
-
-"""
-Q12:On utilise la fonction tf2ss pour obtenir l'etat de systeme
-    
-"""
-    
-
-def tf2ss():
-    num=[1]
-    den=[1,-0.1,0.7]
-    num_array = np.array(num)
-    den_array = np.array(den)
-    A, B, C, D = ctrl.tf2ss(num_array, den_array)
-    print(A)
-    print(B)
-    print(C)
-    print(D)
-    
-
-tf2ss()
-    
