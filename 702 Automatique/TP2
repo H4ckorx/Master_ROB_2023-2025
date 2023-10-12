@@ -215,3 +215,50 @@ def MCC_blk():
 
 MCC_blk()
 
+"""
+Q9 , Q10 et Q11
+    J'ai posé que la position = 'x', la vitesse = 'x1', et l'accélération = 'x2'
+    Parceque la dérivée de la position est la vitesse, et la dérivée de la vitesse 
+    est l'accélération'
+"""
+print("---------------------------------------------------------")
+print("\n")
+print("Question 9, 10 et 11 : \n")
+
+#A = np.array([[0,1],[0,0]])
+#B = np.array([[0],[1]])
+#C = np.array([1,0])
+#D = np.array([0])
+
+def voiture():
+    A = np.array([[0,1],[0,0]])
+    B = np.array([[0],[1]])
+    C = np.array([1,0])
+    D = np.array([0])
+
+    sys = ss(A,B,C,D)
+    sys_tf = ss2tf(sys)
+    print("La fonction de transfert de la voiture est : ")
+    print("\n")
+    print(sys_tf)
+    print("\n")
+    p = ctrl.pole(sys_tf)
+    print("Les poles de la fonction de transfert de la voiture : \n")
+    print(p)  
+    print("\n")
+    print("Le systeme de la voiture n'est pas stable \n")
+    
+    y,T=step(sys,linspace(0,100,2000))
+
+    plt.figure()
+    plt.plot(T.T,y.T)
+    plt.xlabel('Accélération de la voiture')
+    plt.ylabel('La distance parcourue')
+    plt.title('Voiture Accélération-Distance')
+    plt.tight_layout()
+    plt.grid()
+
+voiture()
+
+
+
