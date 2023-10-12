@@ -261,4 +261,85 @@ def voiture():
 voiture()
 
 
+"""
+Q12:
+    
+"""
+print("---------------------------------------------------------")
+print("\n")
+print("Question 12: \n")
 
+A = np.array([[0, 1], [0, 0]])
+B = np.array([[0], [1]])
+C = np.array([1,0])
+D = np.array([0])
+
+def commandable(A,B):
+    Co = ctrb(A, B)
+    det = np.linalg.det(Co)
+    if det == 0:
+        print("Ce systeme n'est pas commandable \n")
+            
+    else:
+        print("Ce systeme est commandable \n")
+        
+commandable(A, B)
+            
+        
+"""
+Q13:
+    
+"""
+print("---------------------------------------------------------")
+print("\n")
+print("Question 13: \n")
+
+A = np.array([[0, 1], [0, 0]])
+B = np.array([[0], [1]])
+C = np.array([1,0])
+D = np.array([0])
+Q = np.array([[1,0],[0,1]])
+R = np.array([[1]])
+K,T,V = ctrl.lqr(A, B, Q, R)
+"""
+K: Il s'agit de la matrice de gains du régulateur linéaire quadratique
+T : C'est la matrice de coût-à-venir
+V : Il s'agit du vecteur des valeurs propres du système en boucle fermée
+"""
+
+
+def dessinePosVelAcc(A,B,C,D):
+    voitP = ss2tf(A,B,C,D)
+    C = np.array([0,1])
+    voitV = ss2tf(A,B,C,D)
+    pos,T = step(voitP)
+    vel,T = step(voitV)
+    acc,T = impulse(voitV)
+    plt.figure()
+    plt.plot(T,pos)
+    plt.plot(T,vel)
+    plt.plot(T,acc)
+    plt.legend(['pos(t)','vel(t)','acc(t)'])
+    plt.xlabel("temps")
+    plt.grid('on');plt.show()
+    
+    
+dessinePosVelAcc(A-B@K,B,C,D)
+
+
+"""
+Q14:
+    L'image est exactement la même dans les deux cas.
+    
+    Cela peut indiquer que les deux méthodes pour déterminer 
+    la matrice de gains K donnent des résultats similaires en 
+    termes de placement des pôles.
+
+    La première utilisation de 'ctrl.lqr' a calculé la matrice 
+    de gains K à l'aide de l'algorithme LQR, tandis que la deuxième 
+    utilisation de K = place(A, B, V) a utilisé la méthode de 
+    placement de pôles pour calculer K en fonction des pôles spécifiés par 'V'.
+    
+"""
+K = place(A,B,V)
+dessinePosVelAcc(A-B@K,B,C,D)
