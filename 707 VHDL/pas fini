@@ -1,0 +1,140 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.STD_LOGIC_ARITH.ALL;
+use IEEE.STD_LOGIC_UNSIGNED.ALL;
+entity traffic_lights is
+    Port ( 
+        RH, YH, VH, RV, YV, VV : out STD_LOGIC;
+        ReqH, ReqV : out STD_LOGIC;
+        clk : in STD_LOGIC
+    );
+end traffic_lights;
+
+architecture behavior of traffic_lights is
+    type state_type is (RED, ORANGE, GREEN);
+    signal state_H, state_V : state_type;
+    signal counter : STD_LOGIC_VECTOR(3 downto 0) := "0000";
+    signal ReqHs, ReqVs : STD_LOGIC := '0';
+
+    constant GREEN_DURATION : STD_LOGIC_VECTOR(3 downto 0) := "1110";  -- 14 cycles
+    constant ORANGE_DURATION : STD_LOGIC_VECTOR(3 downto 0) := "0010"; -- 2 cycles
+    constant PED_DELAY : STD_LOGIC_VECTOR(3 downto 0) := "0011";      -- 3 cycles delay for pedestrian
+
+begin
+    -- Horizontal Lights
+    process (clk)
+    begin
+        if rising_edge(clk) then
+            -- Control logic for horizontal lights
+            case state_H is
+                when RED =>
+                    RH <= '1';
+                    YH <= '0';
+                    VH <= '0';
+                    if ReqVs = '1'then
+                        state_H <= ORANGE;
+                        counter <= (others => '0');
+                    else
+                        state_H <= RED;
+                        counter <= counter;
+                    end if;
+
+                when ORANGE =>
+                    RH <= '0';
+                    YH <= '1';
+                    VH <= '0';
+                    if counter = ORANGE_DURATION then
+                        state_H <= RED;
+                        state_V <= GREEN;
+                        ReqHs <= '0';
+                        ReqVs <= '0';
+                        counter <= (others => '0');
+                    else
+                        counter <= counter + 1;
+                    end if;
+
+                when GREEN =>
+                    RH <= '0';
+                    YH <= '0';
+                    VH <= '1';
+                    if ReqVs = '1' then
+                        counter <= (others => '0');
+                        if counter = PED_DELAY then
+                            counter <= (others => '0');
+                            state_H <= ORANGE;
+                            ReqVs <= '0';
+                        else
+                            counter <= counter + 1;
+                        
+                        end if;
+                        
+                    elsif counter = GREEN_DURATION then
+                        state_H <= ORANGE;
+                        counter <= (others => '0');
+                    else
+                        counter <= counter + 1;
+                    end if;
+            end case;
+        end if;
+    end process;
+
+    -- Vertical Lights
+    process (clk)
+    begin
+        if rising_edge(clk) then
+            -- Control logic for vertical lights
+            case state_V is
+                when RED =>
+                    RV <= '1';
+                    YV <= '0';
+                    VV <= '0';
+                    if ReqHs = '1'then
+                        state_V <= ORANGE;
+                        counter <= (others => '0');
+                    else
+                        state_V <= RED;
+                        counter <= counter;
+                    end if;
+
+                when ORANGE =>
+                    RV <= '0';
+                    YV <= '1';
+                    VV <= '0';
+                    if counter = ORANGE_DURATION then
+                        state_V <= RED;
+                        state_H <= GREEN;
+                        ReqHs <= '0';
+                        ReqVs <= '0';
+                        counter <= (others => '0');
+                    else
+                        counter <= counter + 1;
+                    end if;
+
+                when GREEN =>
+                    RV <= '0';
+                    YV <= '0';
+                    VV <= '1';
+                    if ReqHs = '1' then
+                        counter <= (others => '0');
+                        if counter = PED_DELAY then
+                            counter <= (others => '0');
+                            state_V <= ORANGE;
+                            ReqHs <= '0';
+                        else
+                            counter <= counter + 1;
+                        
+                        end if;
+                        
+                    elsif counter = GREEN_DURATION then
+                        state_V <= ORANGE;
+                        counter <= (others => '0');
+                    else
+                        counter <= counter + 1;
+                    end if;
+            end case;
+        end if;
+    end process;
+
+    ReqH <= ReqHs;
+    ReqV <= ReqVs;
+end behavior;
