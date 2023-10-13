@@ -1,0 +1,112 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.std_logic_arith.all;
+USE IEEE.std_logic_unsigned.all;
+entity feux is
+    Port ( ReqV : in STD_LOGIC;
+           ReqH : in STD_LOGIC;
+           clk : in STD_LOGIC;
+           rst : in std_logic;
+           RH : out STD_LOGIC;
+           YH : out STD_LOGIC;
+           VH : out STD_LOGIC;
+           RV : out STD_LOGIC;
+           YV : out STD_LOGIC;
+           VV : out STD_LOGIC);
+end feux;
+
+architecture Behavioral of feux is
+    type state is (A, B, C, D, G);
+    signal present_state, next_state : state;
+    signal cpt : STD_LOGIC_VECTOR (3 downto 0);
+    signal ReqHs,ReqVs :STD_LOGIC;
+
+begin
+    process(ReqV, ReqH, present_state, cpt, rst)
+    begin
+        if (rst = '1') then
+            next_state <= A;
+            ReqHs <= '0';
+            ReqVs <= '0';
+        end if;
+        case present_state is                
+            when A =>
+                RH <= '0'; YH <= '0'; VH <= '1';
+                RV <= '1'; YV <= '0'; VV <= '0';
+                if cpt = "1101" then
+                        next_state <= B;
+                elsif  ReqVs = '1' then 
+                        if cpt = "0011" then
+                        next_state <= B;
+                        else
+                        
+                        end if;
+                end if;
+            when B =>
+                RH <= '0'; YH <= '1'; VH <= '0'; 
+                RV <= '1'; YV <= '0'; VV <= '0';
+                ReqHs <= '0';
+                ReqHs <= '0';
+                if cpt = "0010" then
+                    next_state <= C;
+                end if;
+                
+            when C =>
+                RH <= '1'; YH <= '0'; VH <= '0'; 
+                RV <= '0'; YV <= '0'; VV <= '1';
+                if cpt = "1101" then
+                        next_state <= D;
+                elsif  ReqHs = '1' then 
+                        if cpt = "0011" then
+                        next_state <= D;
+                        else
+                        
+                        end if;
+                end if; 
+                
+            when D =>
+                RH <= '1'; YH <= '0'; VH <= '0'; 
+                RV <= '0'; YV <= '1'; VV <= '0';
+                ReqVs <= '0';
+                ReqHs <= '0';
+                if cpt = "0010" then
+                    next_state <= A; 
+                end if;
+            when others =>
+            
+        end case;
+    end process;
+    
+    
+
+    process (clk, rst)
+    begin
+        if (rst = '1') then
+            cpt <= "0000";
+            present_state <= A;
+            ReqHs <= '0';
+            ReqVs <= '0';
+        elsif rising_edge(clk) then
+            present_state <= next_state;
+            if present_state /= next_state then
+                cpt <= "0000";
+            
+            else
+                cpt <= cpt + 1;
+            end if;
+        end if;
+    end process; 
+    
+    
+    
+    process (ReqV,ReqH)
+    begin
+        if ReqV = '1'then
+            ReqVs <= '1';
+        elsif ReqH = '1'then
+            ReqHs <= '1';
+        else
+        
+        end if;
+    end process;
+end Behavioral;
