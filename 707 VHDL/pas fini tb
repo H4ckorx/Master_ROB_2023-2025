@@ -1,54 +1,56 @@
-library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.STD_LOGIC_ARITH.ALL;
-use IEEE.STD_LOGIC_UNSIGNED.ALL;
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.std_logic_arith.all;
+USE IEEE.std_logic_unsigned.all;
 
-entity traffic_light_tb is
-end traffic_light_tb;
 
-architecture behavior of traffic_light_tb is
-    signal RH, YH, VH, RV, YV, VV, clk : STD_LOGIC;
-    signal ReqH, ReqV: STD_LOGIC;
+entity feux_tb is
+end feux_tb;
 
-component traffic_lights
-        port(
-            RH: out STD_LOGIC;
-            YH: out STD_LOGIC;
-            VH: out STD_LOGIC;
-            RV: out STD_LOGIC;
-            YV: out STD_LOGIC;
-            VV : out STD_LOGIC;
-            ReqH : out STD_LOGIC;
-            ReqV : out STD_LOGIC;
-            clk : in STD_LOGIC);
-end component;
+architecture Behavioral of feux_tb is
+    component feux is
+        Port ( ReqV : in STD_LOGIC;
+               ReqH : in STD_LOGIC;
+               clk : in STD_LOGIC;
+               RH : out STD_LOGIC;
+               YH : out STD_LOGIC;
+               VH : out STD_LOGIC;
+               RV : out STD_LOGIC;
+               YV : out STD_LOGIC;
+               VV : out STD_LOGIC);
+    end component;
+
+    signal ReqV, ReqH,clk, RH, YH, VH, RV, YV, VV : STD_LOGIC := '0';
+
 begin
-c1: traffic_lights port map(
-RH, YH, VH, RV, YV, VV,ReqH, ReqV, clk
-);
+    c1 : feux port map(ReqV, ReqH, clk, RH, YH,  VH, RV, YV, VV);
+
 
     clk_process: process
     begin
         clk <= '0';
-        wait for 5 ns;
+        wait for 15 ns;
         clk <= '1';
-        wait for 5 ns;
+        wait for 15 ns;
     end process;
-
-    test_process: process
+    
+    
+    tb : process
     begin
-        -- Test scenarios can be implemented here
-        -- For example, set ReqH = '1' to simulate a pedestrian request
-        -- and observe the traffic light behavior
+        ReqV <= '0';
+        ReqH <= '0';
+
+        -- Simulate clock and input changes
         wait for 100 ns;
         ReqV <= '0';
-        wait for 100 ns;
-        ReqH <= '0';
+        wait for 20 ns;
+        ReqV <= '0';
         wait for 200 ns;
         ReqV <= '0';
         wait for 100 ns;
         ReqV <= '0';
         wait;
-    end process;
 
-end behavior;
+    end process tb;
+
+end Behavioral;
