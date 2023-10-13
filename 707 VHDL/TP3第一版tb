@@ -8,22 +8,32 @@ end feux_tb;
 architecture Behavioral of feux_tb is
     component feux is
         Port ( ReqV : in STD_LOGIC;
+               ReqH : in STD_LOGIC;
                start : in STD_LOGIC;
                clk : in STD_LOGIC;
                RH : out STD_LOGIC;
                YH : out STD_LOGIC;
-               ReqH : in STD_LOGIC;
                VH : out STD_LOGIC;
                RV : out STD_LOGIC;
                YV : out STD_LOGIC;
                VV : out STD_LOGIC);
     end component;
 
-    signal ReqV, clk, RH, YH, ReqH, VH, RV, YV, VV, start : STD_LOGIC := '0';
+    signal ReqV, ReqH,clk, RH, YH, VH, RV, YV, VV, start : STD_LOGIC := '0';
 
 begin
-    c1 : feux port map(ReqV, start, clk, RH, YH, ReqH, VH, RV, YV, VV);
+    c1 : feux port map(ReqV, ReqH, start, clk, RH, YH,  VH, RV, YV, VV);
 
+
+    clk_process: process
+    begin
+        clk <= '0';
+        wait for 5 ns;
+        clk <= '1';
+        wait for 5 ns;
+    end process;
+    
+    
     tb : process
     begin
         RH <= '0';
@@ -38,20 +48,14 @@ begin
         start <= '1';
 
         -- Simulate clock and input changes
-        for i in 1 to 10000 loop
-            wait for 10 ns;
-            clk <= not clk;
-            if i = 50 then
-                ReqV <= '1';
-            elsif i = 200 then
-                ReqV <= '0';
-            elsif i = 400 then
-                ReqH <= '1';
-            elsif i = 600 then
-                ReqH <= '0';
-            end if;
-        end loop;
-
+        wait for 100 ns;
+        ReqV <= '1';
+        wait for 20 ns;
+        ReqV <= '0';
+        wait for 200 ns;
+        ReqV <= '0';
+        wait for 100 ns;
+        ReqV <= '0';
         wait;
 
     end process tb;
