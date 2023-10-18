@@ -1,0 +1,81 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Wed Oct 18 14:08:29 2023
+
+@author: H4ckorx
+"""
+
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+# 寻找数据并且转换
+fichierdedonnee = open('Echantillons.txt','r')
+datafromfichier = fichierdedonnee.readlines()
+X = [float(element)for element in datafromfichier]
+
+fichierdedonnee.close()
+
+
+
+Intervalle = (-1.5, 1.5)  # 区间范围
+NombreDeCellules = 10  # 子区间数量
+"""
+# 计算直方图
+histo, mode = np.histogram(X, bins=NombreDeCellules, range=Intervalle)
+
+# Création de histogramme
+plt.bar(mode[:-1], histo, width=0.25, align='edge')
+plt.xlabel('score')
+plt.ylabel('frequence')
+plt.title('hist_label')
+
+# Afficher le histogramme
+plt.show()
+"""
+"""
+hist, bin_edges = np.histogram(a, bins=10, range=None, normed=False, weights=None, density=None)
+
+a:  输入图像， 必选
+					输入数据。直方图是在展平的数组上计算的。
+			bin: int 或标量序列或 str
+    			如果 bins 是一个 int，它定义给定范围内的 equal-width bins 的数量(默认为 10)，
+                主要是将灰度值空间分为多少分进行灰度值统计
+			range：(浮点数，浮点数)，可选
+					bin 的下限和上限范围，如果没有提供，范围很简单(a.min(), a.max()).超出范围的值将被忽略。范围的第一个元素必须小于或等于第二个元素。主要表明的是需要统计的灰度值取值范围。
+			normed：布尔型，可选
+			weights： 数组，可选
+			density： 布尔型，可选
+					如果False，结果将包含每个 bin 中的样本数。如果True, 结果就是概率的值密度
+                    在 bin 处的函数，归一化使得不可缺少的在范围内为 1
+
+"""
+
+
+
+
+def n_hisogram(data,interval,nom_bin):
+    #initialiser tous les valeur histo
+    histo = [0]*nom_bin 
+    #Définir le width de chaque interval
+    interval_width = (interval[1]-interval[0])/nom_bin
+    #Définir les intervalles
+    bin_edges = [interval[0] + i * interval_width for i in range(nom_bin+1)]
+    #ranger tous les data
+    for x in data:
+        for i in range(nom_bin):
+            #Définir chaque sou_interval
+            bin_start = interval[0] + i*interval_width
+            bin_end = bin_start + interval_width
+            if bin_start <= x < bin_end:
+                histo[i] = histo[i] + 1
+                break
+    plt.figure()
+    plt.bar(bin_edges[:-1],histo,width=interval_width-0.1, align = 'edge')
+    plt.show()
+
+
+
+n_hisogram(X, Intervalle, NombreDeCellules)
+
+    
