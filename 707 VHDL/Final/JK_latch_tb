@@ -1,0 +1,67 @@
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
+
+
+entity JK_latch_tb is
+--  Port ( );
+end JK_latch_tb;
+
+architecture Behavioral of JK_latch_tb is
+component JK_latch
+port(
+           clk : in STD_LOGIC;
+           j : in STD_LOGIC;
+           k : in STD_LOGIC;
+           set : in STD_LOGIC;
+           clr : in STD_LOGIC;
+           q : out STD_LOGIC
+
+);
+end component;
+signal clk,j,k,set,clr,q: std_logic;
+begin
+
+c1:JK_latch port map(clk,j,k,set,clr,q);
+
+p1:process
+begin
+    clk <= '1';
+    wait for 10 ns;
+    clk <= '0';
+    wait for 10 ns;
+end process p1;
+
+p2: process
+begin
+    clr <= '1';
+    set <= '0';
+    wait for 20ns;
+    clr <= '0';
+    set <= '1';
+    wait for 40ns;
+    clr <= '0';
+    set <= '0';
+    wait;
+end process;
+
+
+p3: process
+begin
+    j <= '1';
+    k <= '0';
+    wait for 20ns;
+    j <= '0';
+    k <= '0';
+    wait for 20ns;
+    j <= '0';
+    k <= '1';
+    wait for 20ns;
+    j <= '1';
+    k <= '1';
+    wait for 20ns;
+end process;
+end Behavioral;
