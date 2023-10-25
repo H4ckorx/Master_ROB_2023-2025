@@ -1,48 +1,50 @@
-LIBRARY IEEE;                   
-USE IEEE.STD_LOGIC_1164.ALL;    
-USE IEEE.std_logic_arith.all;   
-USE IEEE.std_logic_unsigned.all;
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
 
-entity tb_reg is
+entity REG_tb is
+--  Port ( );
+end REG_tb;
 
-end tb_reg;
+architecture Behavioral of REG_tb is
+component REG is port (
 
-architecture tb of tb_reg is
-component registre
-    port (A   : in STD_LOGIC_VECTOR(3 DOWNTO 0);
-          COM : in STD_LOGIC_VECTOR(1 DOWNTO 0);
-          R   : in STD_LOGIC;
-          S   : out STD_LOGIC_VECTOR(3 DOWNTO 0));
+           A : in std_logic_vector(3 downto 0) ;
+           COM : in std_logic_vector(0 downto 0);
+           R : in STD_LOGIC;
+           S : out std_logic_vector(3 downto 0)
+);
 end component;
 
-    signal A    : STD_LOGIC_VECTOR(3 DOWNTO 0);
-    signal COM  : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    signal R : std_logic;
-    signal S : STD_LOGIC_VECTOR(3 DOWNTO 0);
-
-
+signal A : std_logic_vector(3 downto 0) ;
+signal COM : std_logic_vector(0 downto 0);
+signal R : STD_LOGIC;
+signal S : std_logic_vector(3 downto 0);
 begin
-c1: registre port map(A,COM,R,S);
+c1 : REG port map(A,COM,R,S);
 
-p1:process
+p1 : process
 begin
-    A <= "1001";
-    R <= '1';
-    wait for 20ns;
-    R <= '0';
-    COM <= "00";
-    wait for 20ns;
-    A <= "1110";
-    COM <= "01";
-    wait for 20ns;
-    COM <= "00";
-    wait for 20ns;
-    COM <= "01";
-    wait for 20ns;
-    COM <= "10";
-    wait for 20ns;
-    R <= '1';
-    wait;
+    A <= "0011";
+    COM <="0";
+    wait for 100ns;
+    COM <= "1";
+    wait for 50ns;
+    COM <= "1";
+    A <= "1010";
+    wait for 50ns;
+    COM <= "0";
+    wait;    
 end process;
 
-end tb;
+p2 : process
+begin
+    R <= '1';
+    wait for 50ns;
+    R <= '0';
+    wait for 200ns;
+    R <= '1';
+    wait; 
+end process;
+end Behavioral;
