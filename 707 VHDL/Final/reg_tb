@@ -1,0 +1,38 @@
+LIBRARY IEEE;                   
+USE IEEE.STD_LOGIC_1164.ALL;    
+USE IEEE.std_logic_arith.all;   
+USE IEEE.std_logic_unsigned.all;
+
+entity tb_reg is
+
+end tb_reg;
+
+architecture tb of tb_reg is
+component reg
+    port (A   : in STD_LOGIC_VECTOR(3 DOWNTO 0);
+          COM : in STD_LOGIC_VECTOR(1 DOWNTO 0);
+          R   : in STD_LOGIC;
+          S   : out STD_LOGIC_VECTOR(3 DOWNTO 0));
+end component;
+
+    signal A    : STD_LOGIC_VECTOR(3 DOWNTO 0);
+    signal COM  : STD_LOGIC_VECTOR(1 DOWNTO 0);
+    signal R : std_logic;
+    signal S : STD_LOGIC_VECTOR(3 DOWNTO 0);
+
+
+begin
+p1:process
+begin
+    A <= "1001";
+    R <= '1';
+    wait for 20ns;
+    R <= '0';
+    COM <= "00";
+    wait for 20ns;
+    A <= "1111";
+    COM <= ""
+    
+end process;
+
+end tb;
