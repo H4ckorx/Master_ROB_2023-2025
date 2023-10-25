@@ -3,36 +3,36 @@ USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.std_logic_arith.all;   
 USE IEEE.std_logic_unsigned.all;
 
-entity tb_reg is
 
-end tb_reg;
+entity registre is
+    Port ( A   : in STD_LOGIC_VECTOR(3 DOWNTO 0);
+           COM : in STD_LOGIC_VECTOR(1 DOWNTO 0);
+           R   : in STD_LOGIC;
+           S   : out STD_LOGIC_VECTOR(3 DOWNTO 0));
+end registre;
 
-architecture tb of tb_reg is
-component reg
-    port (A   : in STD_LOGIC_VECTOR(3 DOWNTO 0);
-          COM : in STD_LOGIC_VECTOR(1 DOWNTO 0);
-          R   : in STD_LOGIC;
-          S   : out STD_LOGIC_VECTOR(3 DOWNTO 0));
-end component;
-
-    signal A    : STD_LOGIC_VECTOR(3 DOWNTO 0);
-    signal COM  : STD_LOGIC_VECTOR(1 DOWNTO 0);
-    signal R : std_logic;
-    signal S : STD_LOGIC_VECTOR(3 DOWNTO 0);
-
-
+architecture Behavioral of registre is
+signal temp_s : STD_LOGIC_VECTOR(3 DOWNTO 0);
 begin
-p1:process
-begin
-    A <= "1001";
-    R <= '1';
-    wait for 20ns;
-    R <= '0';
-    COM <= "00";
-    wait for 20ns;
-    A <= "1111";
-    COM <= ""
-    
-end process;
-
-end tb;
+    PROCESS (A, COM, R) BEGIN
+        IF R = '1' THEN
+            temp_s <= "0000";
+        ELSE
+            CASE COM IS 
+                WHEN "00" =>
+                    temp_s <= A;
+                WHEN "01" =>
+                    temp_s(2 DOWNTO 0) <= temp_s(3 DOWNTO 1);
+                    temp_s(3) <= '0';
+                WHEN "10" =>
+                    temp_s(3 DOWNTO 1) <= temp_s(2 DOWNTO 0);
+                    temp_s(0) <= '0';
+                WHEN "11" =>
+                    temp_s <= temp_s;
+                when others  =>
+                    temp_s <= "0000";
+           END CASE;
+        END IF;
+    END PROCESS;
+    S <= temp_s;
+end Behavioral;
