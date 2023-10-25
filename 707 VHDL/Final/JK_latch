@@ -1,0 +1,42 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all; 
+
+
+
+
+entity JK_latch is
+    Port ( clk : in STD_LOGIC;
+           j : in STD_LOGIC;
+           k : in STD_LOGIC;
+           set : in STD_LOGIC;
+           q : out STD_LOGIC;
+           clr : in STD_LOGIC);
+end JK_latch;
+
+architecture Behavioral of JK_latch is
+
+signal q1 : std_logic;
+
+begin
+    process(j,k,set,clr,clk)
+    begin
+        if clr = '1' then
+        q1 <= '0';
+        elsif set = '1' then
+        q1 <= '1';
+        elsif rising_edge(clk) then
+            if j = '1' AND k = '0'then
+            q1 <= '1';
+            elsif j = '0' AND k = '1' then
+            q1 <= '0';
+            elsif j = '1'and k = '1' then
+            q1 <= NOT q1;
+            else
+            q1 <= q1;
+            end if;
+        end if ;
+    end process;
+    q<=q1;
+end Behavioral;
