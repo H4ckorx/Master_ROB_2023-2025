@@ -29,7 +29,9 @@ begin
                     temp_s(0) <= '0';
                 WHEN "11" =>
                     temp_s <= temp_s;
-                    END CASE;
+                when others  =>
+                    temp_s <= "0000";
+           END CASE;
         END IF;
     END PROCESS;
     S <= temp_s;
