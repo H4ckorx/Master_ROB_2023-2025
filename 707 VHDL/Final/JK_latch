@@ -3,7 +3,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.std_logic_arith.all;
 use IEEE.std_logic_unsigned.all; 
 
-
+--J为1K为0时，输出Q为1； J为0K为1时，输出为0；同时为1则输出状态反转；同时为0则保持输出状态
+--clr可以强制输出Q为0,， set强制输出Q为1， clr优先级比set高，所以先写clr
+--clr和set为异步操作，不需要遵守rising和falling
 
 
 entity JK_latch is
