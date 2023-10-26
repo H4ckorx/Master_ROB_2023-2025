@@ -1,0 +1,28 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
+
+
+entity ADD_REG2 is
+    Port ( add_1 : in std_logic_vector (3 downto 0);
+           add_2 : in std_logic_vector (3 downto 0);
+           rst_add : in STD_LOGIC;
+           clk : in STD_LOGIC;
+           sum : out std_logic_vector (3 downto 0));
+end ADD_REG2;
+
+architecture Behavioral of ADD_REG2 is
+signal sum_s : std_logic_vector (3 downto 0);
+begin
+process(add_1,add_2)
+begin
+    if rst_add = '1'then
+        sum_s <= "0000";
+    elsif rst_add = '0'then
+        sum_s <= add_1 + add_2;
+
+    end if;    
+end process;
+sum <= sum_s;
+end Behavioral;
