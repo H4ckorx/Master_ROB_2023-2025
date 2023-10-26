@@ -1,0 +1,54 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
+
+
+
+entity FSM_tb is
+--  Port ( );
+end FSM_tb;
+
+architecture Behavioral of FSM_tb is
+component FSM port(
+           E : in std_logic_vector (3 downto 0);
+           clr : in std_logic;
+           clk : in std_logic;
+           S : out STD_LOGIC
+
+
+);
+end component;
+
+signal clr,clk,S : std_logic;
+signal E : std_logic_vector (3 downto 0);
+begin
+c1 : FSM port map(E,clr,clk,S);
+
+               
+p1 : process
+begin
+    clk  <= '1';
+    wait for 10ns;
+    clk  <= '0';
+    wait for 10ns;
+end process;
+
+p2 : process
+begin
+    clr <= '1';
+    E <= "0111";
+    wait for 20ns;
+    clr <= '0';
+    E <= "0110";
+    wait for 20ns;
+    E <= "1001";
+    wait for 20ns;
+    E <= "1100";
+    wait for 20ns;
+    E <= "0011";
+    wait for 20ns;
+    E <= "0110";
+    wait;
+end process;
+end Behavioral;
