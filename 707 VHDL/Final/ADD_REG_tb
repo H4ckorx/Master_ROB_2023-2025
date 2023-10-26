@@ -1,0 +1,99 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
+
+
+
+entity REG_ADD_tb is
+--  Port ( );
+end REG_ADD_tb;
+
+architecture Behavioral of REG_ADD_tb is
+component ADD_REG port(
+
+           input_entree1 : in std_logic_vector (3 downto 0);
+           input_entree2 : in std_logic_vector (3 downto 0);
+           rst_entree : in STD_LOGIC;
+           clk : in STD_LOGIC;
+           dataout_entree1 : out std_logic_vector (3 downto 0);
+           dataout_entree2 : out std_logic_vector (3 downto 0)
+            );
+end component;
+
+component ADD_REG2 port(
+
+           add_1 : in std_logic_vector (3 downto 0);
+           add_2 : in std_logic_vector (3 downto 0);
+           rst_add : in STD_LOGIC;
+           clk : in STD_LOGIC;
+           sum : out std_logic_vector (3 downto 0)
+
+
+
+);
+end component;
+
+component ADD_REG3 port(
+
+            input_sortie : in std_logic_vector (3 downto 0);
+            rst_sortie : in std_logic ;
+            clk : in std_logic ;
+            dataout_sortie : out std_logic_vector (3 downto 0)
+);
+end component;
+signal input_entree1,input_entree2,add_1,add_2,input_sortie :  std_logic_vector (3 downto 0);
+signal dataout_entree1,dataout_entree2,sum,dataout_sortie  :  std_logic_vector (3 downto 0);
+signal clk,rst_entree,rst_sortie,rst_add : std_logic ;
+begin
+u1 : ADD_REG port map(input_entree1 =>input_entree1, 
+                 input_entree2=> input_entree2,
+                 rst_entree=> rst_entree,
+                 clk=> clk,
+                 dataout_entree1=> dataout_entree1,
+                 dataout_entree2=> dataout_entree2
+     );
+
+
+u2 : ADD_REG2 port map(
+                add_1 => add_1,
+                add_2 => add_2,
+                rst_add => rst_add,
+                clk => clk,
+                sum => sum
+);
+
+u3 : ADD_REG3 port map(
+                input_sortie => input_sortie,
+                rst_sortie => rst_sortie,
+                clk => clk,
+                dataout_sortie => dataout_sortie
+);
+
+
+
+p1 : process
+begin
+    clk <= '1';
+    wait for 10ns;
+    clk <= '0';
+    wait for 10ns;
+end process;
+
+
+
+p2 : process
+begin
+    rst_entree <= '1';rst_add <= '1';rst_sortie <= '1';
+    input_entree1 <= "1000";input_entree2 <="0001";
+    wait for 100ns;
+    rst_entree <= '0';rst_add <= '0';rst_sortie <= '0';
+    input_entree1 <= "0100";input_entree2 <="0010";
+    wait;
+end process;
+
+
+add_1 <= dataout_entree1;
+add_2 <= dataout_entree2;
+input_sortie <= sum;
+end Behavioral;
