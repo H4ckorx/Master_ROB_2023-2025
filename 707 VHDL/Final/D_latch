@@ -1,0 +1,31 @@
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
+
+
+entity D_latch is
+    Port ( clk : in STD_LOGIC;
+           rst : in STD_LOGIC;
+           set : in STD_LOGIC;
+           D : in STD_LOGIC;
+           Q : out STD_LOGIC);
+end D_latch;
+
+architecture Behavioral of D_latch is
+signal temps :std_logic;
+begin
+p1 : process(clk,rst,set,D)
+begin
+    if rst = '1'then
+        temps <= '0';
+    elsif set = '1'then
+        temps <= '1';
+    else
+        if rising_edge (clk) then
+        temps <= D;   
+        end if; 
+    end if ;
+end process;
+Q <= temps;
+end Behavioral;
