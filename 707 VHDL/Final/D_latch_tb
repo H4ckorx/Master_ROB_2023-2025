@@ -1,0 +1,72 @@
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
+
+
+
+entity D_latch_tb is
+
+end D_latch_tb;
+
+
+architecture Behavioral of D_latch_tb is
+component D_latch  
+port
+(
+           clk : in STD_LOGIC;
+           rst : in STD_LOGIC;
+           set : in STD_LOGIC;
+           D : in STD_LOGIC;
+           Q : out STD_LOGIC
+);
+
+end component;
+
+signal clk,rst, set,D,Q : std_logic;
+begin
+
+c1 : D_latch port map(clk,rst,set,D,Q);
+
+p1 : process
+begin
+    clk <= '1';
+    wait for 10ns;
+    clk <= '0';
+    wait for 10ns;
+end process;
+
+p2 : process
+begin 
+    rst<='1';
+    set<= '0';
+    D<='1';
+    wait for 20ns;
+    rst<='0';
+    set<= '1';
+    D<='1';
+    wait for 50ns;
+    
+    rst<='0';
+    set<='0';
+    D<='1';
+    wait for 50ns;
+    rst<='0';
+    set<='0';
+    D<='0';
+    wait for 50ns;
+    rst<='0';
+    set<='0';
+    D<='1';
+    wait for 50ns;
+    rst<='1';
+    set<='0';
+    D<='1';
+    wait;
+    
+    
+end process;
+
+
+end Behavioral;
