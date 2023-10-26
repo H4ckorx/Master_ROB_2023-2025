@@ -1,0 +1,134 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Thu Oct 26 09:53:06 2023
+
+@author: Zeyu YIN M1  EEA
+
+HAE 702E TP3 
+
+Observabilit´e et synth`ese d’observateurs
+"""
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+from control.matlab import *
+from scipy import signal
+import control as ctrl
+
+"""
+Q1 et Q2:
+    
+"""
+print("---------------------------------------------------------")
+print("\n")
+print("Question1 et 2 : \n")
+def systeme():
+    A = np.array([[0,0,1],[1,-1,2],[-6,0,-5]])
+    B = np.array([[1],[2],[1]])
+    C = np.array([[1,1,1]])
+    D = np.array([[0]])
+    
+    sys = ss(A,B,C,D)
+    plt.figure()
+    y,T = step(sys)
+    plt.plot(T.T,y.T)
+    plt.title('(S)')
+    plt.tight_layout()
+    plt.grid()
+    
+systeme()
+
+"""
+Q3:
+    
+"""
+print("---------------------------------------------------------")
+print("\n")
+print("Question3 : \n")
+A = np.array([[0,0,1],[1,-1,2],[-6,0,-5]])
+B = np.array([[1],[2],[1]])
+C = np.array([[1,1,1]])
+D = np.array([[0]])
+
+Ob = obsv(A,C)
+print("L'observabilité de S équal : \n")
+print(Ob)
+print("\n")
+print("C'est le même que le résultat à la main !! ")
+print("\n")
+det_Ob = np.linalg.det(Ob)
+print("Déterminant de la Observabilité égale : \n")
+print(det_Ob)
+print("\n")
+print("Le systeme S est observable! \n")
+
+"""
+Q4:
+    
+"""
+print("---------------------------------------------------------")
+print("\n")
+print("Question4 : \n")
+print("x' = Ax + Bu \nx^' = Ax^ + Bu + L(y-y^) \ny^ = Cx^ \n")
+
+print("Puis on peux obtenir que:")
+print("x^' = (A-LC)x^ + Bu + LCx \n")
+
+print("Donc on a :\ne' = x' - x^'")
+print("e' = (A-LC)(x-x^) = (A-LC)e\n")
+
+print("=>  e' = (A-LC)e\n")
+
+print("Pour calculer 'L', on peut utiliser le déterminant 'λI - (A-LC)' = 0 avec les valeurs propres")
+print("A est un matrice 2*2, C est un matrice 1*2\nDonc L doit être un matrice 2*1")
+
+
+"""
+Q5:
+    
+"""
+
+print("---------------------------------------------------------")
+print("\n")
+print("Question5 : \n")
+
+s = ([[-4,-5,-6]])
+At = A.T
+Ct = C.T
+Lt = place(A.T,C.T,s)
+L = Lt.T
+print("La matrice L équal : ")
+print(L)
+print("\n")
+print("C'est le même que le résultat à la main !! \n")
+
+"""
+Q6:
+    
+"""
+print("---------------------------------------------------------")
+print("\n")
+print("Question6 : \n")
+
+Te = 0.001
+
+sys = ss(A, B , C , D)
+sys_d = c2d(sys,Te)
+
+Phi = sys_d.A
+Gamma = sys_d.B
+
+print("Phi équal : ")
+print(Phi)
+print("\n")
+
+print("Gamma équal : ")
+print(Gamma)
+
+
+
+
+
+
+
