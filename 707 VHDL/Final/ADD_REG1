@@ -1,0 +1,41 @@
+
+
+library IEEE;
+use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.std_logic_arith.all;
+use IEEE.std_logic_unsigned.all;
+
+
+entity ADD_REG is
+Port (     input_entree1 : in std_logic_vector (3 downto 0);
+           input_entree2 : in std_logic_vector (3 downto 0);
+           rst_entree : in STD_LOGIC;
+           clk : in STD_LOGIC;
+           dataout_entree1 : out std_logic_vector (3 downto 0);
+           dataout_entree2 : out std_logic_vector (3 downto 0)
+           );
+end ADD_REG;
+
+architecture Behavioral of ADD_REG is
+signal data_2,data_3: std_logic_vector (3 downto 0);
+begin
+p1 : process(input_entree1,input_entree2,rst_entree)
+
+begin
+    if rst_entree = '1' then
+        data_2 <= "0000";
+        data_3 <= "0000";
+    else
+        if rising_edge (clk)then
+            data_2 <= input_entree1;
+            data_3 <= input_entree2;
+        end if;
+    end if;    
+end process;
+dataout_entree1 <= data_2;
+dataout_entree2 <= data_3;
+
+
+
+
+end Behavioral;
