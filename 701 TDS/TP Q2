@@ -1,0 +1,51 @@
+import matplotlib.pyplot as plt 
+from strauss import CreateRandomSignal
+import numpy as np
+import scipy.stats as stats
+import matplotlib.pyplot as plt
+from statsmodels.tsa.stattools import acf, pacf
+from statsmodels.tsa.ar_model import AutoReg
+import numpy as np
+import statsmodels.api as sm
+from statsmodels.tsa.stattools import adfuller
+
+T1 = CreateRandomSignal(10000)
+
+
+def plot_time_series(signal):
+    plt.plot(signal)
+    plt.title('Time Series Plot')
+    plt.show()
+
+def plot_histogram(signal):
+    plt.hist(signal, bins='auto', density=True, alpha=0.75, rwidth=0.85)
+    plt.title('Histogram')
+    plt.show()
+    
+def ks_test(signal, distribution='norm'):
+    ks_statistic, ks_pvalue = stats.kstest(signal, distribution)
+    print("Statistique du test KS:", ks_statistic, "Valeur P:", ks_pvalue)
+    
+def autocorrelation_analysis(signal):
+    autocorrelation = np.correlate(signal, signal, mode='full') / len(signal)
+    lags = np.arange(-len(signal) + 1, len(signal))
+    
+    plt.stem(lags, autocorrelation, use_line_collection=True)
+    plt.title('Autocorrelation Function (ACF)')
+    plt.xlabel('Lag')
+    plt.ylabel('Autocorrelation')
+    plt.show()
+
+"""
+mean1, var1 = np.mean(T[:5000]), np.var(T[:5000])
+mean2, var2 = np.mean(T[5000:]), np.var(T[5000:])
+print("Moyenne et variance de la première moitié:", mean1, var1, "Moyenne et variance au second semestre:", mean2, var2)
+
+"""
+
+ks_test(T1,distribution='norm')
+plot_time_series(T1)
+plot_histogram(T1)
+autocorrelation_analysis(T1)
+
+result = adfuller(T1)
