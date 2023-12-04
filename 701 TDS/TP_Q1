@@ -1,0 +1,27 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+def generate_signal(n):
+    # 生成带有n个点的随机信号
+    return np.random.rand(n)
+
+def generate_average_plot(m, n):
+    signals = [generate_signal(n) for _ in range(m)]  # 生成m个信号
+
+    # 对每个信号进行逐点求和，并计算平均值
+    average_values = np.mean(signals, axis=0)
+
+    # 绘制原始信号
+    plt.figure(figsize=(10, 6))
+    for signal in signals:
+        plt.plot(signal, alpha=0.5, color='gray')
+
+    # 绘制平均值
+    plt.plot(average_values, label='Average', color='red', linewidth=2)
+
+    plt.title(f'Mean of {m} Signals with {n} Points Each')
+    plt.legend()
+    plt.show()
+
+# 示例：生成3个信号，每个信号有5个点
+generate_average_plot(5, 50)
