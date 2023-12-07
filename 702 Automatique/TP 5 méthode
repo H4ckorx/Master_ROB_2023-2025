@@ -1,0 +1,13 @@
+import numpy as np
+
+# 假设你有一个 Jacobian 矩阵 J
+J = np.array([[1, 2],
+              [3, 4]])
+
+# 添加正则化项
+lambda_value = 0.01
+J_regularized_inv = np.linalg.inv(J.T @ J + lambda_value * np.eye(J.shape[1])) @ J.T
+
+# 打印结果
+print("Regularized Inverse of Jacobian:")
+print(J_regularized_inv)
