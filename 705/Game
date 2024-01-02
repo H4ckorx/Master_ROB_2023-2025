@@ -27,7 +27,7 @@ int gameBoard[ROWS][COLS] = {{0}};
 // 生成新方块的间隔时间（毫秒）
 #define GENERATE_INTERVAL 10000
 // 倒计时变量，单位毫秒
-float countdown = GENERATE_INTERVAL;
+float countdown = 100000;
 
 
 
@@ -257,12 +257,14 @@ void display() {
 
 
 
-// 处理鼠标和键盘输入
 void mouse(int button, int state, int x, int y) {
     if (!gameStarted && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
         // 检查是否点击了开始按钮
-        if (x >= 300 && x <= 500 && y >= 450 &&  y <= 550) {
-            initializeGame(); // 开始游戏
+        int transformedY = windowHeight - y;  // GLUT和OpenGL在垂直坐标方向上使用不同的原点
+        if (x >= 300 && x <= 500 && transformedY >= 450 && transformedY <= 550) {
+            gameStarted = true; // 将gameStarted设置为true
+            countdown = 0;      // 重置计时器为0
+            initializeGame();   // 开始游戏
         }
     }
 }
@@ -287,18 +289,6 @@ void updateGame() {
     glutPostRedisplay();
 }
 
-void updateTimerBar(int value) {
-    if (gameStarted) {
-        countdown -= 20; // 每次减少20毫秒
-        if (countdown <= 0) {
-            countdown = GENERATE_INTERVAL;
-            // 生成新的一排方块的逻辑
-        }
-
-        glutPostRedisplay();
-    }
-    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次updateTimerBar
-}
 
 
 
@@ -343,14 +333,31 @@ void removeCompleteRows() {
 
 void onTimer(int value) {
     if (gameStarted) {
-        generateNewRow();  // 生成新的一行方块
-        updateGame();      // 更新游戏状态
+        countdown -= 10000; // 减少倒计时
+
+        if (countdown <= 0) {
+            generateNewRow();  // 生成新的一行方块
+            updateGame();      // 更新游戏状态
+            countdown = GENERATE_INTERVAL; // 重置倒计时
+        }
     }
 
     glutPostRedisplay(); // 请求重绘
 
     // 重新设置定时器
-    glutTimerFunc(GENERATE_INTERVAL, onTimer, 0);
+    glutTimerFunc(10000, onTimer, 0); // 传递value作为参数
+}
+
+void updateTimerBar(int value) {
+    if (gameStarted) {
+        countdown -= 20; 
+        if (countdown <= 0) {
+            countdown = GENERATE_INTERVAL;
+        }
+
+        glutPostRedisplay();
+    }
+    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次updateTimerBar
 }
 
 
@@ -373,7 +380,7 @@ int main(int argc, char** argv) {
     glutIdleFunc(updateGame);
 
     // 设置定时器
-    glutTimerFunc(GENERATE_INTERVAL, onTimer, 0); // 注册onTimer为定时器回调
+    glutTimerFunc(10000, onTimer, 0); // 传递100作为间隔时间参数
 
     // 设置进度条更新的定时器
     glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次updateTimerBar
