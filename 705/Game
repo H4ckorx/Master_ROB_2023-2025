@@ -4,6 +4,7 @@
 #include <stdbool.h> // 引入布尔类型支持
 #include <time.h> // 包含 time 函数的声明
 #include <stdlib.h> // 包含 srand 和 rand 函数的声明
+#include <stdio.h> // 包含 sprintf 函数的声明
 
 
 
@@ -24,10 +25,18 @@ const int windowHeight = gameAreaHeight + 2 * borderSize;
 int gameBoard[ROWS][COLS] = {{0}};
 
 // 生成新方块的间隔时间（毫秒）
-#define GENERATE_INTERVAL 3000
+#define GENERATE_INTERVAL 10000
+// 倒计时变量，单位毫秒
+float countdown = GENERATE_INTERVAL;
+
+
 
 // 方块大小
-#define BLOCK_SIZE 100
+#define BLOCK_SIZE 92
+// 定义格子间的空隙大小
+#define GAP_SIZE 7.5
+
+
 
 // 初始化函数
 void init() {
@@ -35,8 +44,13 @@ void init() {
     // 这里可以设置更多的OpenGL初始化代码
 }
 
+
+
 // 游戏是否已开始
 bool gameStarted = false;
+bool showTimerBar = false;
+
+
 
 //渲染逻辑
 void drawSquare(float x, float y, float size) {
@@ -83,7 +97,7 @@ void drawText(const char *text, float x, float y) {
 //绘制开始按钮
 void drawStartButton() {
     // 绘制按钮
-    glColor3f(0.0, 1.0, 0.0); // 绿色按钮
+    glColor3f(0.968627f, 0.862745f, 0.435294f); // 奶油白色按钮
     glBegin(GL_QUADS);
         glVertex2f(300, 450);
         glVertex2f(500, 450);
@@ -91,16 +105,23 @@ void drawStartButton() {
         glVertex2f(300, 550);
     glEnd();
 
-    // 设置文字颜色并绘制文字
-    glColor3f(1.0, 1.0, 1.0); // 设置文本颜色为白色
+    // 设置文字颜色并绘制开始游戏按钮上的文字
+    glColor3f(0.490196f, 0.235294f, 0.596078f); // 富有的紫色文本
     drawText("Commencer", 345, 485); // 假设文本在按钮中间
+
+    // 设置深灰色并在按钮上方绘制游戏说明
+    glColor3f(0.3f, 0.3f, 0.3f); // 深灰色文本
+    drawText("Welcome to Twenty!", 300, 700); // 标题
+    drawText("To play, pick up tiles and drop them onto tiles", 200, 620); // 说明第一部分
+    drawText("with the same value", 300, 560); // 说明第二部分
 }
 
 
 //绘制方块逻辑
 void drawBlock(int value, int row, int col) {
-    float x = borderSize + col * BLOCK_SIZE; // 横坐标
-    float y = borderSize + row * BLOCK_SIZE; // 纵坐标
+    // 考虑空隙，重新计算 x 和 y 坐标
+    float x = borderSize + col * (BLOCK_SIZE + GAP_SIZE) + GAP_SIZE / 2.0f;
+    float y = borderSize + row * (BLOCK_SIZE + GAP_SIZE) + GAP_SIZE / 2.0f;
 
     // 根据方块的值选择颜色
     if (value > 0 && value <= 20) {
@@ -110,11 +131,38 @@ void drawBlock(int value, int row, int col) {
     }
 
     drawSquare(x, y, BLOCK_SIZE); // 绘制方块
+
+    // 设置文本颜色（例如黑色）
+    glColor3f(0.0, 0.0, 0.0);
+
+    // 将数字转换为字符串
+    char numStr[3];
+    sprintf(numStr, "%d", value);
+
+    // 调整文本位置，使其居中显示在方块上
+    drawText(numStr, x + (BLOCK_SIZE / 2.2), y + (BLOCK_SIZE / 2.2));
+}
+
+//进度条绘制
+void drawTimerBar() {
+    if (!showTimerBar) return; // 如果不显示进度条，则直接返回
+
+    float barWidth = (countdown / GENERATE_INTERVAL) * windowWidth;
+    glColor3f(1.0f, 0.0f, 0.0f); // 红色时间条
+    glBegin(GL_QUADS);
+        glVertex2f(windowWidth - barWidth, windowHeight - 20);
+        glVertex2f(windowWidth, windowHeight - 20);
+        glVertex2f(windowWidth, windowHeight - 30);
+        glVertex2f(windowWidth - barWidth, windowHeight - 30);
+    glEnd();
 }
 
 //初始化游戏
 void initializeGame() {
     gameStarted = true;
+    showTimerBar = true; // 点击开始按钮时显示进度条
+    countdown = GENERATE_INTERVAL; // 初始化倒计时
+
     // 清空游戏板
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
@@ -127,6 +175,22 @@ void initializeGame() {
         gameBoard[8 - ROWS +1][j] = rand() % 6 + 1;
     }
 }
+
+//获取最大分数
+int getMaxScore() {
+    int maxScore = 0;
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            if (gameBoard[i][j] > maxScore) {
+                maxScore = gameBoard[i][j];
+            }
+        }
+    }
+    return maxScore;
+}
+
+
+
 
 //绘制游戏画面逻辑
 void display() {
@@ -157,20 +221,40 @@ void display() {
     glEnd();
 
     if (!gameStarted) {
-            drawStartButton();
-        } else {
-            // 绘制游戏内容
-            for (int i = 0; i < ROWS; i++) {
-                for (int j = 0; j < COLS; j++) {
-                    if (gameBoard[i][j] != 0) {
-                        drawBlock(gameBoard[i][j], i, j);
-                    }
+        drawStartButton();
+    } else {
+        // 绘制游戏板上的方块和数字
+        for (int i = 0; i < ROWS; i++) {
+            for (int j = 0; j < COLS; j++) {
+                if (gameBoard[i][j] != 0) {
+                    drawBlock(gameBoard[i][j], i, j);
                 }
             }
         }
-        glFlush();
-        glutSwapBuffers();
     }
+    if (gameStarted) {
+        // 获取最大分数
+        int maxScore = getMaxScore();
+
+        // 将分数转换为字符串
+        char scoreStr[20];
+        sprintf(scoreStr, "Score: %d", maxScore);
+
+        // 设置文本颜色
+        glColor3f(1.0, 0.0, 1.0);
+
+        // 绘制分数文本
+        // 假设每个字符的宽度约为10像素，文本长度大约为scoreStr的长度乘以10
+        int textLength = strlen(scoreStr) * 10;
+        drawText(scoreStr, windowWidth - textLength - 20, windowHeight - 50); // 在窗口右上角绘制文本
+    }
+    // 绘制时间条
+    drawTimerBar();
+
+    glFlush();
+    glutSwapBuffers();
+}
+
 
 
 // 处理鼠标和键盘输入
@@ -190,7 +274,7 @@ void keyboard(unsigned char key, int x, int y) {
     }
 }
 
-// 更新游戏状态
+	// 更新游戏状态
 void updateGame() {
     // 检查顶部是否有方块
     for (int j = 0; j < COLS; j++) {
@@ -203,6 +287,18 @@ void updateGame() {
     glutPostRedisplay();
 }
 
+void updateTimerBar(int value) {
+    if (gameStarted) {
+        countdown -= 20; // 每次减少20毫秒
+        if (countdown <= 0) {
+            countdown = GENERATE_INTERVAL;
+            // 生成新的一排方块的逻辑
+        }
+
+        glutPostRedisplay();
+    }
+    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次updateTimerBar
+}
 
 
 
@@ -219,14 +315,20 @@ void shiftBlocksUp() {
 }
 
 
+
 void generateNewRow() {
     // 先将现有方块向上移动
     shiftBlocksUp();
 
-    // 在底部生成新的方块行
+    // 获取当前最大分数
+    int maxScore = getMaxScore();
+
+    // 生成新的方块行，确保不超过当前最大分数
+    // 生成新的方块行，确保数值在 1 到 maxScore - 2 之间
     for (int j = 0; j < COLS; j++) {
-        gameBoard[0][j] = rand() % 20 + 1; // 随机生成 1 到 20 之间的数值
+        gameBoard[0][j] = rand() % (maxScore - 2) + 1; // 随机生成 1 到 maxScore - 2 之间的数值
     }
+
 }
 
 void mergeBlocks(int fromRow, int fromCol, int toRow, int toCol) {
@@ -240,13 +342,17 @@ void removeCompleteRows() {
 
 
 void onTimer(int value) {
-    generateNewRow();  // 生成新的一行方块
-    updateGame();      // 更新游戏状态，例如检查游戏是否结束
+    if (gameStarted) {
+        generateNewRow();  // 生成新的一行方块
+        updateGame();      // 更新游戏状态
+    }
+
     glutPostRedisplay(); // 请求重绘
 
-    // 重新设置定时器，以保证每10秒触发一次
+    // 重新设置定时器
     glutTimerFunc(GENERATE_INTERVAL, onTimer, 0);
 }
+
 
 // 主函数
 int main(int argc, char** argv) {
@@ -269,6 +375,9 @@ int main(int argc, char** argv) {
     // 设置定时器
     glutTimerFunc(GENERATE_INTERVAL, onTimer, 0); // 注册onTimer为定时器回调
 
-    glutMainLoop(); // 进入主循环
+    // 设置进度条更新的定时器
+    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次updateTimerBar
+
+    glutMainLoop();
     return 0;
 }
