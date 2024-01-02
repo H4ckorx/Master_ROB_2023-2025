@@ -6,6 +6,7 @@
 #include <stdlib.h> // 包含 srand 和 rand 函数的声明
 #include <stdio.h> // 包含 sprintf 函数的声明
 
+/***********************************************************************基本参数*****************************************************************************/
 
 
 // 定义游戏区域和外围区域的尺寸
@@ -29,38 +30,21 @@ int gameBoard[ROWS][COLS] = {{0}};
 // 倒计时变量，单位毫秒
 float countdown = 100000;
 
-
-
 // 方块大小
 #define BLOCK_SIZE 92
+
 // 定义格子间的空隙大小
 #define GAP_SIZE 7.5
-
-
 
 // 初始化函数
 void init() {
     glClearColor(0.0, 0.0, 0.0, 1.0); // 设置背景颜色
-    // 这里可以设置更多的OpenGL初始化代码
 }
-
-
 
 // 游戏是否已开始
 bool gameStarted = false;
 bool showTimerBar = false;
 
-
-
-//渲染逻辑
-void drawSquare(float x, float y, float size) {
-    glBegin(GL_QUADS);
-        glVertex2f(x, y);
-        glVertex2f(x + size, y);
-        glVertex2f(x + size, y + size);
-        glVertex2f(x, y + size);
-    glEnd();
-}
 //颜色设置
 float colors[20][3] = {
     {1.0, 0.0, 0.0},   // 红色
@@ -85,6 +69,235 @@ float colors[20][3] = {
     {1.0, 0.84, 0.0}   // 金色
 };
 
+bool isDragging = false; // 是否正在拖动
+int draggedBlockX = -1;  // 被拖动方块的列
+int draggedBlockY = -1;  // 被拖动方块的行
+int mouseX = 0, mouseY = 0; // 鼠标的屏幕坐标
+
+/***************************************************************更新游戏状态******************************************************************/
+
+/*获取最大分数*/
+int getMaxScore() {
+    int maxScore = 0;
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            if (gameBoard[i][j] > maxScore) {
+                maxScore = gameBoard[i][j];
+            }
+        }
+    }
+    return maxScore;
+}
+
+/*生成新方块：向上平移*/
+void shiftBlocksUp() {
+    for (int i = ROWS-1; i >= 0; i--) {
+        for (int j = 0; j < COLS; j++) {
+            gameBoard[i][j] = gameBoard[i-1][j];
+        }
+    }
+    for (int j = 0; j < COLS; j++) {
+           gameBoard[0][j] = 0;
+       }
+}
+
+/*生成新方块：不生成和上方数字相同的方块*/
+int generateRandomBlock(int maxVal, int exclude) {
+    int newVal;
+    do {
+        newVal = rand() % maxVal + 1;
+    } while (newVal == exclude);
+    return newVal;
+}
+
+/*生成新方块：底部生成*/
+void generateNewRow() {
+    shiftBlocksUp(); // 向上移动现有方块
+
+    int maxScore = getMaxScore(); // 获取当前最大分数
+
+    for (int j = 0; j < COLS; j++) {
+        int exclude = (ROWS > 1) ? gameBoard[1][j] : 0; // 获取当前列第二行的值作为排除值
+        gameBoard[0][j] = generateRandomBlock(maxScore - 2, exclude); // 生成新方块
+    }
+}
+
+/*初始化游戏*/
+void initializeGame() {
+    gameStarted = true;
+    showTimerBar = true; // 显示进度条
+    countdown = GENERATE_INTERVAL; // 初始化倒计时
+
+    // 清空游戏板
+    for (int i = 0; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            gameBoard[i][j] = 0;
+        }
+    }
+    // 生成两排随机方块，确保上下方块数字不同
+    int maxVal = 6; // 假设方块的最大值为6
+    for (int j = 0; j < COLS; j++) {
+        gameBoard[1][j] = rand() % maxVal + 1; // 为倒数第二行生成随机方块
+        gameBoard[0][j] = generateRandomBlock(maxVal, gameBoard[1][j]); // 为最后一行生成随机方块
+    }
+}
+
+
+/*鼠标操作*/
+void mouse(int button, int state, int x, int y) {
+    // 转换y坐标，因为GLUT和OpenGL的坐标系不同
+    int transformedY = windowHeight - y;
+
+    if (!gameStarted) {
+        if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+            // 检查是否点击了开始按钮
+            if (x >= 300 && x <= 500 && transformedY >= 450 && transformedY <= 550) {
+                gameStarted = true;
+                countdown = 0;
+                initializeGame();
+            }
+        }
+    } else {
+        if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+            // 计算点击的格子位置，考虑边界和方块大小
+            draggedBlockX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+            draggedBlockY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+
+            // 检查点击是否在有效格子内
+            if (draggedBlockX >= 0 && draggedBlockX < COLS && draggedBlockY >= 0 && draggedBlockY < ROWS) {
+                isDragging = true;
+            }
+        } else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+            isDragging = false;
+            draggedBlockX = -1;
+            draggedBlockY = -1;
+        }
+    }
+}
+
+void motion(int x, int y) {
+	mouseX = x;
+	mouseY = windowHeight - y; // 转换 y 坐标
+    if (isDragging) {
+        // 转换y坐标
+        int transformedY = windowHeight - y;
+
+        // 更新被拖动方块的预期位置（鼠标当前位置）
+        int currentX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+        int currentY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+
+        // 检查当前位置是否在有效范围内
+        if (currentX >= 0 && currentX < COLS && currentY >= 0 && currentY < ROWS) {
+            // 这里可以添加代码来显示拖动效果，例如更新方块的视觉位置
+            // 注意：实际的方块位置更新应该在鼠标释放时处理
+            // ...
+        }
+    }
+    glutPostRedisplay(); // 请求重绘
+}
+
+
+/*键盘操作*/
+void keyboard(unsigned char key, int x, int y) {
+    if (key == 27) { // 按 ESC 退出
+        exit(0);
+    }
+}
+
+/*更新游戏状态*/
+void updateGame() {
+    // 检查顶部是否有方块
+    for (int j = 0; j < COLS; j++) {
+        if (gameBoard[0][j] != 0) {
+            // 游戏结束逻辑
+            break;
+        }
+    }
+
+    glutPostRedisplay();
+}
+
+
+
+
+
+
+/************************************************************************游戏规则*******************************************************************/
+
+
+void mergeBlocks(int fromRow, int fromCol, int toRow, int toCol) {
+    // 合并两个方块的逻辑
+}
+
+void removeCompleteRows() {
+    // 检查并消除完整的行
+}
+
+
+
+
+
+
+
+/****************************************************************************计数器代码******************************************************************/
+
+
+
+
+//方块刷新计时器
+void onTimer(int value) {
+    if (!gameStarted) {
+    	 countdown = 0;
+    	 glutTimerFunc(10000, onTimer, 0);
+        return; // 如果游戏未开始，直接返回
+    }
+        countdown -= 10000; // 减少倒计时
+
+        if (countdown <= 0) {
+            generateNewRow();  // 生成新的一行方块
+            updateGame();      // 更新游戏状态
+            countdown = GENERATE_INTERVAL; // 重置倒计时
+        }
+
+        glutPostRedisplay();
+
+        glutTimerFunc(10000, onTimer, 0);
+}
+
+
+//进度条计时器
+void updateTimerBar(int value) {
+    if (!gameStarted) {
+    	countdown = 0;
+    	glutTimerFunc(20, updateTimerBar, 0);
+        return; // 如果游戏未开始，直接返回
+    }
+    countdown -= 20;
+    if (countdown <= 0) {
+        countdown = GENERATE_INTERVAL; // 重置倒计时
+    }
+
+    glutPostRedisplay();
+
+    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次更新进度条
+}
+
+
+/***********************************************************************绘制代码**************************************************************************/
+
+
+/*绘制方块*/
+
+void drawSquare(float x, float y, float size) {
+    glBegin(GL_QUADS);
+        glVertex2f(x, y);
+        glVertex2f(x + size, y);
+        glVertex2f(x + size, y + size);
+        glVertex2f(x, y + size);
+    glEnd();
+}
+
+/**/
 //绘制文本
 void drawText(const char *text, float x, float y) {
     glRasterPos2f(x, y);
@@ -93,8 +306,7 @@ void drawText(const char *text, float x, float y) {
     }
 }
 
-
-//绘制开始按钮
+/*绘制开始按钮*/
 void drawStartButton() {
     // 绘制按钮
     glColor3f(0.968627f, 0.862745f, 0.435294f); // 奶油白色按钮
@@ -116,8 +328,7 @@ void drawStartButton() {
     drawText("with the same value", 300, 560); // 说明第二部分
 }
 
-
-//绘制方块逻辑
+/*绘制方块逻辑*/
 void drawBlock(int value, int row, int col) {
     // 考虑空隙，重新计算 x 和 y 坐标
     float x = borderSize + col * (BLOCK_SIZE + GAP_SIZE) + GAP_SIZE / 2.0f;
@@ -143,7 +354,7 @@ void drawBlock(int value, int row, int col) {
     drawText(numStr, x + (BLOCK_SIZE / 2.2), y + (BLOCK_SIZE / 2.2));
 }
 
-//进度条绘制
+/*进度条绘制*/
 void drawTimerBar() {
     if (!showTimerBar) return; // 如果不显示进度条，则直接返回
 
@@ -157,42 +368,7 @@ void drawTimerBar() {
     glEnd();
 }
 
-//初始化游戏
-void initializeGame() {
-    gameStarted = true;
-    showTimerBar = true; // 点击开始按钮时显示进度条
-    countdown = GENERATE_INTERVAL; // 初始化倒计时
-
-    // 清空游戏板
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            gameBoard[i][j] = 0;
-        }
-    }
-    // 生成两排随机方块
-    for (int j = 0; j < COLS; j++) {
-        gameBoard[8 - ROWS][j] = rand() % 6 + 1;
-        gameBoard[8 - ROWS +1][j] = rand() % 6 + 1;
-    }
-}
-
-//获取最大分数
-int getMaxScore() {
-    int maxScore = 0;
-    for (int i = 0; i < ROWS; i++) {
-        for (int j = 0; j < COLS; j++) {
-            if (gameBoard[i][j] > maxScore) {
-                maxScore = gameBoard[i][j];
-            }
-        }
-    }
-    return maxScore;
-}
-
-
-
-
-//绘制游戏画面逻辑
+/*绘制游戏画面逻辑*/
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -221,16 +397,23 @@ void display() {
     glEnd();
 
     if (!gameStarted) {
-        drawStartButton();
-    } else {
-        // 绘制游戏板上的方块和数字
-        for (int i = 0; i < ROWS; i++) {
-            for (int j = 0; j < COLS; j++) {
-                if (gameBoard[i][j] != 0) {
-                    drawBlock(gameBoard[i][j], i, j);
+            drawStartButton();
+        } else {
+            // 绘制游戏板上的方块和数字
+            for (int i = 0; i < ROWS; i++) {
+                for (int j = 0; j < COLS; j++) {
+                    if (gameBoard[i][j] != 0) {
+                        drawBlock(gameBoard[i][j], i, j);
+                    }
                 }
             }
-        }
+
+            // 如果正在拖动方块，则绘制被拖动的方块
+            if (isDragging) {
+                // 使用 mouseX 和 mouseY 作为被拖动方块的位置
+                int blockValue = gameBoard[draggedBlockY][draggedBlockX];
+                drawBlock(blockValue, mouseX, mouseY); // 假设 drawBlock 现在接受屏幕坐标
+            }
     }
     if (gameStarted) {
         // 获取最大分数
@@ -257,108 +440,16 @@ void display() {
 
 
 
-void mouse(int button, int state, int x, int y) {
-    if (!gameStarted && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-        // 检查是否点击了开始按钮
-        int transformedY = windowHeight - y;  // GLUT和OpenGL在垂直坐标方向上使用不同的原点
-        if (x >= 300 && x <= 500 && transformedY >= 450 && transformedY <= 550) {
-            gameStarted = true; // 将gameStarted设置为true
-            countdown = 0;      // 重置计时器为0
-            initializeGame();   // 开始游戏
-        }
-    }
-}
-
-
-void keyboard(unsigned char key, int x, int y) {
-    if (key == 27) { // 按 ESC 退出
-        exit(0);
-    }
-}
-
-	// 更新游戏状态
-void updateGame() {
-    // 检查顶部是否有方块
-    for (int j = 0; j < COLS; j++) {
-        if (gameBoard[0][j] != 0) {
-            // 游戏结束逻辑
-            break;
-        }
-    }
-
-    glutPostRedisplay();
-}
 
 
 
 
-// 从顶部开始，将每个方块向上移动一行
-void shiftBlocksUp() {
-    for (int i = ROWS-1; i >= 0; i--) {
-        for (int j = 0; j < COLS; j++) {
-            gameBoard[i][j] = gameBoard[i-1][j];
-        }
-    }
-    for (int j = 0; j < COLS; j++) {
-           gameBoard[0][j] = 0;
-       }
-}
+/***************************************************************************main*******************************************************************/
 
 
 
-void generateNewRow() {
-    // 先将现有方块向上移动
-    shiftBlocksUp();
-
-    // 获取当前最大分数
-    int maxScore = getMaxScore();
-
-    // 生成新的方块行，确保不超过当前最大分数
-    // 生成新的方块行，确保数值在 1 到 maxScore - 2 之间
-    for (int j = 0; j < COLS; j++) {
-        gameBoard[0][j] = rand() % (maxScore - 2) + 1; // 随机生成 1 到 maxScore - 2 之间的数值
-    }
-
-}
-
-void mergeBlocks(int fromRow, int fromCol, int toRow, int toCol) {
-    // 合并两个方块的逻辑
-}
-
-void removeCompleteRows() {
-    // 检查并消除完整的行
-}
 
 
-
-void onTimer(int value) {
-    if (gameStarted) {
-        countdown -= 10000; // 减少倒计时
-
-        if (countdown <= 0) {
-            generateNewRow();  // 生成新的一行方块
-            updateGame();      // 更新游戏状态
-            countdown = GENERATE_INTERVAL; // 重置倒计时
-        }
-    }
-
-    glutPostRedisplay(); // 请求重绘
-
-    // 重新设置定时器
-    glutTimerFunc(10000, onTimer, 0); // 传递value作为参数
-}
-
-void updateTimerBar(int value) {
-    if (gameStarted) {
-        countdown -= 20; 
-        if (countdown <= 0) {
-            countdown = GENERATE_INTERVAL;
-        }
-
-        glutPostRedisplay();
-    }
-    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次updateTimerBar
-}
 
 
 // 主函数
@@ -376,6 +467,7 @@ int main(int argc, char** argv) {
     // 注册回调函数
     glutDisplayFunc(display);
     glutMouseFunc(mouse);
+    glutMotionFunc(motion);   // 注册鼠标移动事件处理函数
     glutKeyboardFunc(keyboard);
     glutIdleFunc(updateGame);
 
