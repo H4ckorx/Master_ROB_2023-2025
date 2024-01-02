@@ -156,44 +156,55 @@ void mouse(int button, int state, int x, int y) {
                 initializeGame();
             }
         }
-    } else {
-        if (button == GLUT_LEFT_BUTTON) {
-            if (state == GLUT_DOWN) {
-                // 开始拖拽
-                draggedBlockX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
-                draggedBlockY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
-                if (draggedBlockX >= 0 && draggedBlockX < COLS && draggedBlockY >= 0 && draggedBlockY < ROWS) {
-                    isDragging = true;
-                }
-            } else if (state == GLUT_UP && isDragging) {
-                isDragging = false;
-
-                // 计算放置的格子位置
-                int dropX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
-                int dropY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
-
-                if (dropX >= 0 && dropX < COLS && dropY >= 0 && dropY < ROWS) {
-                    int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
-                    int dropValue = gameBoard[dropY][dropX];
-
-                    if (dropValue == 0) {
-                        // 放置方块
-                        gameBoard[dropY][dropX] = draggedValue;
-                        gameBoard[draggedBlockY][draggedBlockX] = 0;
-                    } else if (draggedValue == dropValue) {
-                        // 合成方块
-                        gameBoard[dropY][dropX]++;
-                        gameBoard[draggedBlockY][draggedBlockX] = 0;
-                    }
-                }
-
-                // 重置拖动状态
-                draggedBlockX = -1;
-                draggedBlockY = -1;
+    } else if (button == GLUT_LEFT_BUTTON) {
+        if (state == GLUT_DOWN) {
+            // 开始拖拽
+            draggedBlockX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+            draggedBlockY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+            if (draggedBlockX >= 0 && draggedBlockX < COLS && draggedBlockY >= 0 && draggedBlockY < ROWS) {
+                isDragging = true;
             }
+        } else if (state == GLUT_UP && isDragging) {
+            isDragging = false;
+
+            // 计算放置的格子位置
+            int dropX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+            int dropY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+
+            // 检查是否放置在有效区域内
+            if (dropX >= 0 && dropX < COLS) {
+            	// 在这里声明 draggedValue
+                int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
+                gameBoard[draggedBlockY][draggedBlockX] = 0; // 暂时清空原位置
+
+                // 自动下落直到找到底部或者另一个方块
+                while (dropY > 0 && gameBoard[dropY - 1][dropX] == 0) {
+                    dropY--;
+                }
+
+                // 检查目标位置是否为空或与拖动的方块值相同
+                if (gameBoard[dropY][dropX] == 0 || gameBoard[dropY][dropX] == draggedValue) {
+                    gameBoard[dropY][dropX] = (gameBoard[dropY][dropX] == 0) ? draggedValue : gameBoard[dropY][dropX] + 1;
+                } else {
+                    // 如果目标位置不为空，恢复原位置的方块
+                    gameBoard[draggedBlockY][draggedBlockX] = draggedValue;
+                }
+            } else {
+                // 如果放置位置无效，恢复原位置的方块
+            	int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
+                gameBoard[draggedBlockY][draggedBlockX] = draggedValue;
+            }
+
+            // 重置拖动状态
+            draggedBlockX = -1;
+            draggedBlockY = -1;
         }
     }
 }
+
+
+
+
 
 
 
