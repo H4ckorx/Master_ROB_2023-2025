@@ -145,7 +145,6 @@ void initializeGame() {
 
 /*鼠标操作*/
 void mouse(int button, int state, int x, int y) {
-    // 转换y坐标，因为GLUT和OpenGL的坐标系不同
     int transformedY = windowHeight - y;
 
     if (!gameStarted) {
@@ -158,42 +157,51 @@ void mouse(int button, int state, int x, int y) {
             }
         }
     } else {
-        if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-            // 计算点击的格子位置，考虑边界和方块大小
-            draggedBlockX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
-            draggedBlockY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+        if (button == GLUT_LEFT_BUTTON) {
+            if (state == GLUT_DOWN) {
+                // 开始拖拽
+                draggedBlockX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+                draggedBlockY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+                if (draggedBlockX >= 0 && draggedBlockX < COLS && draggedBlockY >= 0 && draggedBlockY < ROWS) {
+                    isDragging = true;
+                }
+            } else if (state == GLUT_UP && isDragging) {
+                isDragging = false;
 
-            // 检查点击是否在有效格子内
-            if (draggedBlockX >= 0 && draggedBlockX < COLS && draggedBlockY >= 0 && draggedBlockY < ROWS) {
-                isDragging = true;
+                // 计算放置的格子位置
+                int dropX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+                int dropY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
+
+                if (dropX >= 0 && dropX < COLS && dropY >= 0 && dropY < ROWS) {
+                    int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
+                    int dropValue = gameBoard[dropY][dropX];
+
+                    if (dropValue == 0) {
+                        // 放置方块
+                        gameBoard[dropY][dropX] = draggedValue;
+                        gameBoard[draggedBlockY][draggedBlockX] = 0;
+                    } else if (draggedValue == dropValue) {
+                        // 合成方块
+                        gameBoard[dropY][dropX]++;
+                        gameBoard[draggedBlockY][draggedBlockX] = 0;
+                    }
+                }
+
+                // 重置拖动状态
+                draggedBlockX = -1;
+                draggedBlockY = -1;
             }
-        } else if (button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
-            isDragging = false;
-            draggedBlockX = -1;
-            draggedBlockY = -1;
         }
     }
 }
 
+
+
 void motion(int x, int y) {
-	mouseX = x;
-	mouseY = windowHeight - y; // 转换 y 坐标
-    if (isDragging) {
-        // 转换y坐标
-        int transformedY = windowHeight - y;
-
-        // 更新被拖动方块的预期位置（鼠标当前位置）
-        int currentX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
-        int currentY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
-
-        // 检查当前位置是否在有效范围内
-        if (currentX >= 0 && currentX < COLS && currentY >= 0 && currentY < ROWS) {
-            // 这里可以添加代码来显示拖动效果，例如更新方块的视觉位置
-            // 注意：实际的方块位置更新应该在鼠标释放时处理
-            // ...
-        }
-    }
+    mouseX = x;
+    mouseY = windowHeight - y; // 转换 y 坐标
     glutPostRedisplay(); // 请求重绘
+    printf("Mouse Position: (%d, %d)\n", mouseX, mouseY);
 }
 
 
@@ -297,14 +305,35 @@ void drawSquare(float x, float y, float size) {
     glEnd();
 }
 
-/**/
-//绘制文本
+/*绘制文本*/
 void drawText(const char *text, float x, float y) {
     glRasterPos2f(x, y);
     for (const char *c = text; *c != '\0'; c++) {
         glutBitmapCharacter(GLUT_BITMAP_TIMES_ROMAN_24, *c);
     }
 }
+
+/*绘制被拖拽的方块*/
+void drawBlockAtScreenPosition(int value, int screenX, int screenY) {
+    float x = screenX - BLOCK_SIZE / 2.0f;
+    float y = screenY - BLOCK_SIZE / 2.0f;
+
+    if (value > 0 && value <= 20) {
+        glColor3f(colors[value-1][0], colors[value-1][1], colors[value-1][2]);
+    } else {
+        glColor3f(0.5, 0.5, 0.5); // 默认颜色
+    }
+
+    drawSquare(x, y, BLOCK_SIZE);
+
+    // 设置文本颜色（例如黑色）
+    glColor3f(0.0, 0.0, 0.0);
+    char numStr[3];
+    sprintf(numStr, "%d", value);
+    drawText(numStr, x + (BLOCK_SIZE / 2.2), y + (BLOCK_SIZE / 2.2));
+}
+
+
 
 /*绘制开始按钮*/
 void drawStartButton() {
@@ -410,9 +439,8 @@ void display() {
 
             // 如果正在拖动方块，则绘制被拖动的方块
             if (isDragging) {
-                // 使用 mouseX 和 mouseY 作为被拖动方块的位置
                 int blockValue = gameBoard[draggedBlockY][draggedBlockX];
-                drawBlock(blockValue, mouseX, mouseY); // 假设 drawBlock 现在接受屏幕坐标
+                drawBlockAtScreenPosition(blockValue, mouseX, mouseY);
             }
     }
     if (gameStarted) {
