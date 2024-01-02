@@ -161,8 +161,23 @@ void mouse(int button, int state, int x, int y) {
             // 开始拖拽
             draggedBlockX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
             draggedBlockY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
-            if (draggedBlockX >= 0 && draggedBlockX < COLS && draggedBlockY >= 0 && draggedBlockY < ROWS) {
+
+            // 检查是否可以拖拽
+            bool canDrag = false;
+            if (draggedBlockY < ROWS - 1 && gameBoard[draggedBlockY + 1][draggedBlockX] == 0) { // 检查上方
+                canDrag = true;
+            }
+            if (draggedBlockX > 0 && gameBoard[draggedBlockY][draggedBlockX - 1] == 0) { // 检查左侧
+                canDrag = true;
+            }
+            if (draggedBlockX < COLS - 1 && gameBoard[draggedBlockY][draggedBlockX + 1] == 0) { // 检查右侧
+                canDrag = true;
+            }
+
+            if (canDrag && draggedBlockX >= 0 && draggedBlockX < COLS && draggedBlockY >= 0 && draggedBlockY < ROWS) {
                 isDragging = true;
+            } else {
+                isDragging = false;
             }
         } else if (state == GLUT_UP && isDragging) {
             isDragging = false;
@@ -173,22 +188,26 @@ void mouse(int button, int state, int x, int y) {
 
             // 拖动方块的原始值
             int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
-            // 暂时清空原位置
-            gameBoard[draggedBlockY][draggedBlockX] = 0;
+            gameBoard[draggedBlockY][draggedBlockX] = 0; // 暂时清空原位置
 
             // 自动下落直到找到底部或者另一个方块
-            while (dropY > 0 && gameBoard[dropY - 1][dropX] == 0) {
+            while (dropY > 0 && (gameBoard[dropY - 1][dropX] == 0 || gameBoard[dropY - 1][dropX] == draggedValue)) {
                 dropY--;
             }
 
-            // 检查目标位置是否为空或与拖动的方块值相同
-            if (gameBoard[dropY][dropX] == 0) {
-                gameBoard[dropY][dropX] = draggedValue;
-            } else if (gameBoard[dropY][dropX] == draggedValue) {
-                // 合并方块
-                gameBoard[dropY][dropX]++;
+            // 检查是否可以合并
+            bool canMerge = dropY < ROWS - 1 && (gameBoard[dropY + 1][dropX] == 0 || gameBoard[dropY + 1][dropX] == draggedValue);
+            canMerge = canMerge || (dropX > 0 && (gameBoard[dropY][dropX - 1] == 0 || gameBoard[dropY][dropX - 1] == draggedValue));
+            canMerge = canMerge || (dropX < COLS - 1 && (gameBoard[dropY][dropX + 1] == 0 || gameBoard[dropY][dropX + 1] == draggedValue));
+
+            if (canMerge) {
+                if (gameBoard[dropY][dropX] == 0) {
+                    gameBoard[dropY][dropX] = draggedValue;
+                } else if (gameBoard[dropY][dropX] == draggedValue) {
+                    gameBoard[dropY][dropX]++;
+                }
             } else {
-                // 如果目标位置不为空，且不与拖动的方块值相同，恢复原位置的方块
+                // 恢复原位置的方块
                 gameBoard[draggedBlockY][draggedBlockX] = draggedValue;
             }
 
@@ -198,6 +217,7 @@ void mouse(int button, int state, int x, int y) {
         }
     }
 }
+
 
 
 
