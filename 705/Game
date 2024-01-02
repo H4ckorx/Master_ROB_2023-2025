@@ -171,27 +171,24 @@ void mouse(int button, int state, int x, int y) {
             int dropX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
             int dropY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
 
-            // 检查是否放置在有效区域内
-            if (dropX >= 0 && dropX < COLS) {
-            	// 在这里声明 draggedValue
-                int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
-                gameBoard[draggedBlockY][draggedBlockX] = 0; // 暂时清空原位置
+            // 拖动方块的原始值
+            int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
+            // 暂时清空原位置
+            gameBoard[draggedBlockY][draggedBlockX] = 0;
 
-                // 自动下落直到找到底部或者另一个方块
-                while (dropY > 0 && gameBoard[dropY - 1][dropX] == 0) {
-                    dropY--;
-                }
+            // 自动下落直到找到底部或者另一个方块
+            while (dropY > 0 && gameBoard[dropY - 1][dropX] == 0) {
+                dropY--;
+            }
 
-                // 检查目标位置是否为空或与拖动的方块值相同
-                if (gameBoard[dropY][dropX] == 0 || gameBoard[dropY][dropX] == draggedValue) {
-                    gameBoard[dropY][dropX] = (gameBoard[dropY][dropX] == 0) ? draggedValue : gameBoard[dropY][dropX] + 1;
-                } else {
-                    // 如果目标位置不为空，恢复原位置的方块
-                    gameBoard[draggedBlockY][draggedBlockX] = draggedValue;
-                }
+            // 检查目标位置是否为空或与拖动的方块值相同
+            if (gameBoard[dropY][dropX] == 0) {
+                gameBoard[dropY][dropX] = draggedValue;
+            } else if (gameBoard[dropY][dropX] == draggedValue) {
+                // 合并方块
+                gameBoard[dropY][dropX]++;
             } else {
-                // 如果放置位置无效，恢复原位置的方块
-            	int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
+                // 如果目标位置不为空，且不与拖动的方块值相同，恢复原位置的方块
                 gameBoard[draggedBlockY][draggedBlockX] = draggedValue;
             }
 
@@ -201,6 +198,8 @@ void mouse(int button, int state, int x, int y) {
         }
     }
 }
+
+
 
 
 
@@ -244,12 +243,47 @@ void updateGame() {
 /************************************************************************游戏规则*******************************************************************/
 
 
-void mergeBlocks(int fromRow, int fromCol, int toRow, int toCol) {
-    // 合并两个方块的逻辑
+void mergeVerticalBlocks() {
+    for (int col = 0; col < COLS; col++) {
+        for (int row = ROWS - 1; row > 0; row--) { // 从底部开始向上检查
+            if (gameBoard[row][col] != 0 && gameBoard[row][col] == gameBoard[row - 1][col]) {
+                // 合并方块
+                gameBoard[row][col]++;
+                gameBoard[row - 1][col] = 0;
+
+                // 合并后，上方方块可能会导致新的合并，继续检查
+                for (int checkRow = row - 1; checkRow > 0; checkRow--) {
+                    if (gameBoard[checkRow][col] == gameBoard[checkRow - 1][col]) {
+                        gameBoard[checkRow][col]++;
+                        gameBoard[checkRow - 1][col] = 0;
+                    } else {
+                        break; // 不需要进一步检查
+                    }
+                }
+            }
+        }
+    }
 }
 
-void removeCompleteRows() {
-    // 检查并消除完整的行
+void riseBlocksIfEmptyAbove(int gameBoard[ROWS][COLS]) {
+    // 从第二行开始向上遍历（最顶行无需检查）
+    for (int i = 1; i < ROWS; i++) {
+        for (int j = 0; j < COLS; j++) {
+            // 当前位置有方块且上方为空时
+            while (gameBoard[i][j] != 0 && gameBoard[i - 1][j] == 0) {
+                // 将方块上移
+                gameBoard[i - 1][j] = gameBoard[i][j];
+                gameBoard[i][j] = 0;
+
+                // 继续检查上一行，直到遇到非空位置或到达顶部
+                if (i > 1) {
+                    i--;
+                } else {
+                    break; // 到达顶部
+                }
+            }
+        }
+    }
 }
 
 
@@ -410,6 +444,10 @@ void drawTimerBar() {
 
 /*绘制游戏画面逻辑*/
 void display() {
+	// 调用函数以使方块上升
+	riseBlocksIfEmptyAbove(gameBoard);
+	// 在绘制游戏板之前调用 merge_vertical_blocks
+	mergeVerticalBlocks(gameBoard);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     // 设置正投影
@@ -439,7 +477,7 @@ void display() {
     if (!gameStarted) {
             drawStartButton();
         } else {
-            // 绘制游戏板上的方块和数字
+            // 合并后绘制游戏板
             for (int i = 0; i < ROWS; i++) {
                 for (int j = 0; j < COLS; j++) {
                     if (gameBoard[i][j] != 0) {
@@ -448,12 +486,11 @@ void display() {
                 }
             }
 
-            // 如果正在拖动方块，则绘制被拖动的方块
             if (isDragging) {
                 int blockValue = gameBoard[draggedBlockY][draggedBlockX];
                 drawBlockAtScreenPosition(blockValue, mouseX, mouseY);
             }
-    }
+        }
     if (gameStarted) {
         // 获取最大分数
         int maxScore = getMaxScore();
