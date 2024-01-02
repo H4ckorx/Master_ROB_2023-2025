@@ -54,7 +54,6 @@ float colors[20][3] = {
     {1.0, 0.0, 1.0},   // 紫色
     {0.0, 1.0, 1.0},   // 青色
     {1.0, 1.0, 1.0},   // 白色
-    {0.0, 0.0, 0.0},   // 黑色
     {1.0, 0.5, 0.0},   // 橙色
     {1.0, 0.75, 0.8},  // 粉色
     {0.0, 0.0, 0.55},  // 深蓝
@@ -66,8 +65,10 @@ float colors[20][3] = {
     {0.0, 0.39, 0.0},  // 深绿
     {0.58, 0.0, 0.82}, // 紫罗兰
     {0.68, 0.85, 0.9}, // 淡蓝
-    {1.0, 0.84, 0.0}   // 金色
+    {1.0, 0.84, 0.0},   // 金色
+    {0.0, 0.0, 0.0}    // 黑色
 };
+
 
 bool isDragging = false; // 是否正在拖动
 int draggedBlockX = -1;  // 被拖动方块的列
@@ -162,22 +163,22 @@ void mouse(int button, int state, int x, int y) {
             draggedBlockX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
             draggedBlockY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
 
-            // 检查是否可以拖拽
+            int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
+
+            // 检查是否可以拖动（如果周围有空格或者相同值的方块）
             bool canDrag = false;
-            if (draggedBlockY < ROWS - 1 && gameBoard[draggedBlockY + 1][draggedBlockX] == 0) { // 检查上方
+            if (draggedBlockY < ROWS - 1 && (gameBoard[draggedBlockY + 1][draggedBlockX] == 0 || gameBoard[draggedBlockY + 1][draggedBlockX] == draggedValue)) {
                 canDrag = true;
             }
-            if (draggedBlockX > 0 && gameBoard[draggedBlockY][draggedBlockX - 1] == 0) { // 检查左侧
+            if (draggedBlockX > 0 && (gameBoard[draggedBlockY][draggedBlockX - 1] == 0 || gameBoard[draggedBlockY][draggedBlockX - 1] == draggedValue)) {
                 canDrag = true;
             }
-            if (draggedBlockX < COLS - 1 && gameBoard[draggedBlockY][draggedBlockX + 1] == 0) { // 检查右侧
+            if (draggedBlockX < COLS - 1 && (gameBoard[draggedBlockY][draggedBlockX + 1] == 0 || gameBoard[draggedBlockY][draggedBlockX + 1] == draggedValue)) {
                 canDrag = true;
             }
 
-            if (canDrag && draggedBlockX >= 0 && draggedBlockX < COLS && draggedBlockY >= 0 && draggedBlockY < ROWS) {
+            if (canDrag) {
                 isDragging = true;
-            } else {
-                isDragging = false;
             }
         } else if (state == GLUT_UP && isDragging) {
             isDragging = false;
@@ -186,28 +187,21 @@ void mouse(int button, int state, int x, int y) {
             int dropX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
             int dropY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
 
-            // 拖动方块的原始值
             int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
-            gameBoard[draggedBlockY][draggedBlockX] = 0; // 暂时清空原位置
+            gameBoard[draggedBlockY][draggedBlockX] = 0; // 清空原位置
 
             // 自动下落直到找到底部或者另一个方块
             while (dropY > 0 && (gameBoard[dropY - 1][dropX] == 0 || gameBoard[dropY - 1][dropX] == draggedValue)) {
                 dropY--;
             }
 
-            // 检查是否可以合并
-            bool canMerge = dropY < ROWS - 1 && (gameBoard[dropY + 1][dropX] == 0 || gameBoard[dropY + 1][dropX] == draggedValue);
-            canMerge = canMerge || (dropX > 0 && (gameBoard[dropY][dropX - 1] == 0 || gameBoard[dropY][dropX - 1] == draggedValue));
-            canMerge = canMerge || (dropX < COLS - 1 && (gameBoard[dropY][dropX + 1] == 0 || gameBoard[dropY][dropX + 1] == draggedValue));
-
-            if (canMerge) {
-                if (gameBoard[dropY][dropX] == 0) {
-                    gameBoard[dropY][dropX] = draggedValue;
-                } else if (gameBoard[dropY][dropX] == draggedValue) {
-                    gameBoard[dropY][dropX]++;
-                }
+            // 合并或放置方块
+            if (gameBoard[dropY][dropX] == draggedValue) {
+                gameBoard[dropY][dropX]++; // 合并方块
+            } else if (gameBoard[dropY][dropX] == 0) {
+                gameBoard[dropY][dropX] = draggedValue; // 放置方块
             } else {
-                // 恢复原位置的方块
+                // 恢复原位置的方块（如果目标位置不为空，且不与拖动的方块值相同）
                 gameBoard[draggedBlockY][draggedBlockX] = draggedValue;
             }
 
@@ -217,6 +211,8 @@ void mouse(int button, int state, int x, int y) {
         }
     }
 }
+
+
 
 
 
