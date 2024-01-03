@@ -89,6 +89,7 @@ int getMaxScore() {
         return finalMaxScore;
     }
 
+
     int maxScore = 0;
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
@@ -123,22 +124,22 @@ int generateRandomBlock(int maxVal, int exclude) {
 /*生成新方块：底部生成*/
 void generateNewRow() {
     // 检查最上方一排是否有方块
-    for (int j = 0; j < COLS; j++) {
-        if (gameBoard[ROWS - 1][j] != 0) {
-            // 游戏结束，设置 gameOver 为 true 并保存最大分数
-            gameOver = true;
-            finalMaxScore = getMaxScore(); // 保存游戏结束时的最大分数
-            return;
-        }
-    }
-
+	for (int j = 0; j < COLS; j++) {
+	        if (gameBoard[ROWS - 1][j] != 0) {
+	            gameOver = true;
+	            finalMaxScore = 0;
+	            for (int i = 0; i < ROWS; i++) {
+	                for (int j = 0; j < COLS; j++) {
+	                    if (gameBoard[i][j] > finalMaxScore) {
+	                        finalMaxScore = gameBoard[i][j];
+	                    }
+	                }
+	            }
+	            return;
+	        }
+	    }
     // 向上移动现有方块
     shiftBlocksUp();
-
-    // 如果游戏已结束，则不生成新方块
-    if (gameOver) {
-        return;
-    }
 
     // 获取当前最大分数
     int maxScore = getMaxScore();
