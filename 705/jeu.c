@@ -489,6 +489,7 @@ void drawTimerBar() {
 
 
 /*绘制游戏画面逻辑*/
+/*绘制游戏画面逻辑*/
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -497,37 +498,36 @@ void display() {
     glLoadIdentity();
     gluOrtho2D(0.0, windowWidth, 0.0, windowHeight);
 
+    // 绘制外围区域背景
+    glColor3f(1.0, 1.0, 1.0); // 白色背景
+    glBegin(GL_QUADS);
+        glVertex2f(0, 0);
+        glVertex2f(windowWidth, 0);
+        glVertex2f(windowWidth, windowHeight);
+        glVertex2f(0, windowHeight);
+    glEnd();
+
+    // 绘制游戏区域背景
+    glColor3f(0.8, 0.8, 0.8); // 灰色背景
+    glBegin(GL_QUADS);
+        glVertex2f(borderSize, borderSize);
+        glVertex2f(borderSize + gameAreaWidth, borderSize);
+        glVertex2f(borderSize + gameAreaWidth, borderSize + gameAreaHeight);
+        glVertex2f(borderSize, borderSize + gameAreaHeight);
+    glEnd();
+
     // 如果游戏结束
     if (gameOver) {
         glColor3f(1.0, 0.0, 0.0); // 设置红色文本
         drawText("Game Over", windowWidth / 2 - 50, windowHeight / 2 + 20); // 居中显示游戏结束信息
 
         char scoreStr[20];
-        int maxScore = getMaxScore();
-        sprintf(scoreStr, "Final Score: %d", maxScore);
+        sprintf(scoreStr, "Final Score: %d", finalMaxScore);
         drawText(scoreStr, windowWidth / 2 - 60, windowHeight / 2 - 20); // 显示最终得分
     } else {
-        // 在绘制游戏板之前调用 mergeVerticalBlocks 和 riseBlocksIfEmptyAbove
+        // 在游戏进行中的绘制逻辑
         mergeVerticalBlocks();
         riseBlocksIfEmptyAbove(gameBoard);
-
-        // 绘制外围区域背景
-        glColor3f(1.0, 1.0, 1.0); // 白色背景
-        glBegin(GL_QUADS);
-                glVertex2f(0, 0);
-                glVertex2f(windowWidth, 0);
-                glVertex2f(windowWidth, windowHeight);
-                glVertex2f(0, windowHeight);
-        glEnd();
-
-        // 绘制游戏区域背景
-        glColor3f(0.8, 0.8, 0.8); // 灰色背景
-        glBegin(GL_QUADS);
-                glVertex2f(borderSize, borderSize);
-                glVertex2f(borderSize + gameAreaWidth, borderSize);
-                glVertex2f(borderSize + gameAreaWidth, borderSize + gameAreaHeight);
-                glVertex2f(borderSize, borderSize + gameAreaHeight);
-        glEnd();
 
         if (!gameStarted) {
             drawStartButton();
@@ -547,6 +547,7 @@ void display() {
                 drawBlockAtScreenPosition(blockValue, mouseX, mouseY);
             }
         }
+
         if (gameStarted) {
             // 获取最大分数
             int maxScore = getMaxScore();
@@ -562,6 +563,7 @@ void display() {
             int textLength = strlen(scoreStr) * 10;
             drawText(scoreStr, windowWidth - textLength - 20, windowHeight - 50); // 在窗口右上角绘制文本
         }
+
         // 绘制时间条
         drawTimerBar();
     }
@@ -569,6 +571,7 @@ void display() {
     glFlush();
     glutSwapBuffers();
 }
+
 
 
 
