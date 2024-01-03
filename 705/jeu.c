@@ -41,6 +41,9 @@ void init() {
     glClearColor(0.0, 0.0, 0.0, 1.0); // 设置背景颜色
 }
 
+// 全局变量存储游戏结束时的最大分数
+int finalMaxScore = 0;
+
 // 游戏是否已开始
 bool gameStarted = false;
 bool showTimerBar = false;
@@ -81,6 +84,11 @@ int mouseX = 0, mouseY = 0; // 鼠标的屏幕坐标
 
 /*获取最大分数*/
 int getMaxScore() {
+    // 如果游戏结束，返回保存的最大分数
+    if (gameOver) {
+        return finalMaxScore;
+    }
+
     int maxScore = 0;
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
@@ -91,7 +99,6 @@ int getMaxScore() {
     }
     return maxScore;
 }
-
 /*生成新方块：向上平移*/
 void shiftBlocksUp() {
     for (int i = ROWS-1; i >= 0; i--) {
@@ -115,31 +122,23 @@ int generateRandomBlock(int maxVal, int exclude) {
 
 /*生成新方块：底部生成*/
 void generateNewRow() {
-
-
     // 检查最上方一排是否有方块
     for (int j = 0; j < COLS; j++) {
         if (gameBoard[ROWS - 1][j] != 0) {
-            // 游戏结束，设置 gameOver 为 true
+            // 游戏结束，设置 gameOver 为 true 并保存最大分数
             gameOver = true;
-            // 清空游戏板
-            for (int i = 0; i < ROWS; i++) {
-                for (int j = 0; j < COLS; j++) {
-                    gameBoard[i][j] = 0;
-                }
-            }
-            // 显示游戏结束信息
-            printf("Game Over\n");
+            finalMaxScore = getMaxScore(); // 保存游戏结束时的最大分数
             return;
         }
     }
+
     // 向上移动现有方块
     shiftBlocksUp();
 
-        // 如果游戏已结束，则不生成新方块
+    // 如果游戏已结束，则不生成新方块
     if (gameOver) {
-            return;
-        }
+        return;
+    }
 
     // 获取当前最大分数
     int maxScore = getMaxScore();
@@ -487,8 +486,8 @@ void drawTimerBar() {
     glEnd();
 }
 
-/*绘制游戏画面逻辑*/
-/*绘制游戏画面逻辑*/
+
+
 /*绘制游戏画面逻辑*/
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -500,8 +499,13 @@ void display() {
 
     // 如果游戏结束
     if (gameOver) {
-        glColor3f(1.0, 0.0, 0.0); // 红色文字
-        drawText("Game Over", windowWidth / 2 - 50, windowHeight / 2); // 居中显示游戏结束信息
+        glColor3f(1.0, 0.0, 0.0); // 设置红色文本
+        drawText("Game Over", windowWidth / 2 - 50, windowHeight / 2 + 20); // 居中显示游戏结束信息
+
+        char scoreStr[20];
+        int maxScore = getMaxScore();
+        sprintf(scoreStr, "Final Score: %d", maxScore);
+        drawText(scoreStr, windowWidth / 2 - 60, windowHeight / 2 - 20); // 显示最终得分
     } else {
         // 在绘制游戏板之前调用 mergeVerticalBlocks 和 riseBlocksIfEmptyAbove
         mergeVerticalBlocks();
@@ -520,13 +524,13 @@ void display() {
         glColor3f(0.8, 0.8, 0.8); // 灰色背景
         glBegin(GL_QUADS);
                 glVertex2f(borderSize, borderSize);
-                glVertex2f(borderSize + 600, borderSize);
-                glVertex2f(borderSize + 600, borderSize + 800);
-                glVertex2f(borderSize, borderSize + 800);
+                glVertex2f(borderSize + gameAreaWidth, borderSize);
+                glVertex2f(borderSize + gameAreaWidth, borderSize + gameAreaHeight);
+                glVertex2f(borderSize, borderSize + gameAreaHeight);
         glEnd();
 
         if (!gameStarted) {
-                drawStartButton();
+            drawStartButton();
         } else {
             // 绘制游戏板上的方块和数字
             for (int i = 0; i < ROWS; i++) {
@@ -565,7 +569,6 @@ void display() {
     glFlush();
     glutSwapBuffers();
 }
-
 
 
 
