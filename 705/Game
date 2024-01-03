@@ -156,6 +156,7 @@ void generateNewRow() {
 void initializeGame() {
     gameStarted = true;
     showTimerBar = true; // 显示进度条
+    gameOver = false; // 重置游戏结束标志
     countdown = GENERATE_INTERVAL; // 初始化倒计时
 
     // 清空游戏板
@@ -239,6 +240,20 @@ void mouse(int button, int state, int x, int y) {
             draggedBlockY = -1;
         }
     }
+    if (gameOver && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+            // 计算按钮的区域
+            float buttonWidth = 200;
+            float buttonHeight = 50;
+            float buttonX = windowWidth / 2 - buttonWidth / 2;
+            float buttonY = windowHeight / 2 - 100;
+
+            // 检查点击是否在按钮区域内
+            if (x >= buttonX && x <= (buttonX + buttonWidth) &&
+                windowHeight - y >= buttonY && windowHeight - y <= (buttonY + buttonHeight)) {
+                // 重置游戏状态
+                initializeGame();
+            }
+        }
 }
 
 
@@ -447,6 +462,25 @@ void drawStartButton() {
     drawText("with the same value", 300, 560); // 说明第二部分
 }
 
+/*绘制重新开始按钮*/
+void drawRestartButton() {
+    glColor3f(0.5, 0.8, 0.5); // 设置按钮颜色
+    float buttonWidth = 200;
+    float buttonHeight = 50;
+    float buttonX = windowWidth / 2 - buttonWidth / 2;
+    float buttonY = windowHeight / 2 - 100;
+
+    glBegin(GL_QUADS);
+        glVertex2f(buttonX, buttonY);
+        glVertex2f(buttonX + buttonWidth, buttonY);
+        glVertex2f(buttonX + buttonWidth, buttonY + buttonHeight);
+        glVertex2f(buttonX, buttonY + buttonHeight);
+    glEnd();
+
+    glColor3f(0.0, 0.0, 0.0); // 黑色文字
+    drawText("Restart", buttonX + 70, buttonY + 15);
+}
+
 /*绘制方块逻辑*/
 void drawBlock(int value, int row, int col) {
     // 考虑空隙，重新计算 x 和 y 坐标
@@ -525,6 +559,9 @@ void display() {
         char scoreStr[20];
         sprintf(scoreStr, "Final Score: %d", finalMaxScore);
         drawText(scoreStr, windowWidth / 2 - 60, windowHeight / 2 - 20); // 显示最终得分
+
+        drawRestartButton();
+
     } else {
         // 在游戏进行中的绘制逻辑
         mergeVerticalBlocks();
