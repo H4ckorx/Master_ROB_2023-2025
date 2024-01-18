@@ -1,56 +1,56 @@
 #include <GL/freeglut.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <stdbool.h> // 引入布尔类型支持
-#include <time.h> // 包含 time 函数的声明
-#include <stdlib.h> // 包含 srand 和 rand 函数的声明
-#include <stdio.h> // 包含 sprintf 函数的声明
+#include <stdbool.h> // 引入布尔类型支持（Introduire le support du type booléen）
+#include <time.h> // 包含 time 函数的声明（Contient la déclaration de la fonction time）
+#include <stdlib.h> // 包含 srand 和 rand 函数的声明（Contient les déclarations des fonctions srand et rand）
+#include <stdio.h> // 包含 sprintf 函数的声明（Contient la déclaration de la fonction sprintf）
 
 /***********************************************************************基本参数*****************************************************************************/
 
 
-// 定义游戏区域和外围区域的尺寸
-const int gameAreaWidth = 600;  // 游戏区域宽度
-const int gameAreaHeight = 800; // 游戏区域高度
-const int borderSize = 100;     // 边界大小
+// 定义游戏区域和外围区域的尺寸（Définir les dimensions de la zone de jeu et de la zone périphérique）
+const int gameAreaWidth = 600;  // 游戏区域宽度（Largeur de la zone de jeu）
+const int gameAreaHeight = 800; // 游戏区域高度（Hauteur de la zone de jeu）
+const int borderSize = 100;     // 边界大小（Taille de la bordure）
 
-// 总窗口尺寸
+// 总窗口尺寸（Dimensions totales de la fenêtre）
 const int windowWidth = gameAreaWidth + 2 * borderSize;
 const int windowHeight = gameAreaHeight + 2 * borderSize;
 
-// 定义游戏板大小
+// 定义游戏板大小（Définir la taille du plateau de jeu）
 #define ROWS 8
 #define COLS 6
 
-// 游戏板数据结构
+// 游戏板数据结构（Structure de données du plateau de jeu）
 int gameBoard[ROWS][COLS] = {{0}};
 
-// 生成新方块的间隔时间（毫秒）
+// 生成新方块的间隔时间（毫秒）（Intervalle de temps pour générer un nouveau bloc (en millisecondes)）
 #define GENERATE_INTERVAL 10000
-// 倒计时变量，单位毫秒
+// 倒计时变量，单位毫秒（Variable de compte à rebours, en millisecondes）
 float countdown = 100000;
 
-// 方块大小
+// 方块大小（Taille d'un bloc）
 #define BLOCK_SIZE 92
 
-// 定义格子间的空隙大小
+// 定义格子间的空隙大小（Définir la taille de l'espace entre les grilles）
 #define GAP_SIZE 7.5
 
-// 初始化函数
+// 初始化函数（Fonctions d'initialisation）
 void init() {
-    glClearColor(0.0, 0.0, 0.0, 1.0); // 设置背景颜色
+    glClearColor(0.0, 0.0, 0.0, 1.0); // 设置背景颜色（Définir la couleur de fond）
 }
 
-// 全局变量存储游戏结束时的最大分数
+// 全局变量存储游戏结束时的最大分数（Variable globale pour stocker le score maximum à la fin du jeu）
 int finalMaxScore = 0;
 
-// 游戏是否已开始
+// 游戏是否已开始（État du démarrage du jeu）
 bool gameStarted = false;
 bool showTimerBar = false;
 bool gameOver = false;
 
 
-//颜色设置
+//颜色设置（Paramètres de couleur ）
 float colors[20][3] = {
     {1.0, 0.0, 0.0},   // 红色
     {0.0, 1.0, 0.0},   // 绿色
@@ -75,14 +75,16 @@ float colors[20][3] = {
 };
 
 
-bool isDragging = false; // 是否正在拖动
-int draggedBlockX = -1;  // 被拖动方块的列
-int draggedBlockY = -1;  // 被拖动方块的行
-int mouseX = 0, mouseY = 0; // 鼠标的屏幕坐标
+bool isDragging = false; // 是否正在拖动（Indique si un élément est en cours de glissement）
+int draggedBlockX = -1;  // 被拖动方块的列（Colonne du bloc en train d'être glissé）
+int draggedBlockY = -1;  // 被拖动方块的行（Ligne du bloc en train d'être glissé）
+int mouseX = 0, mouseY = 0; // 鼠标的屏幕坐标（Coordonnées de la souris à l'écran）
 
 /***************************************************************更新游戏状态******************************************************************/
+/**********************************************************Mise à jour du statut du jeu******************************************************************/
 
-/*获取最大分数*/
+
+/*获取最大分数（Consultation du score maximum）*/
 int getMaxScore() {
     // 如果游戏结束，返回保存的最大分数
     if (gameOver) {
