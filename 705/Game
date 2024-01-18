@@ -450,7 +450,7 @@ void drawBlockAtScreenPosition(int value, int screenX, int screenY) {
 
 /*绘制开始按钮(Dessiner le bouton de démarrage)*/
 void drawStartButton() {
-    // 绘制按钮
+    // 绘制按钮( Dessiner des boutons)
     glColor3f(0.968627f, 0.862745f, 0.435294f); // 奶油白色按钮
     glBegin(GL_QUADS);
         glVertex2f(300, 450);
@@ -459,20 +459,20 @@ void drawStartButton() {
         glVertex2f(300, 550);
     glEnd();
 
-    // 设置文字颜色并绘制开始游戏按钮上的文字
-    glColor3f(0.490196f, 0.235294f, 0.596078f); // 富有的紫色文本
-    drawText("Commencer", 345, 485); // 假设文本在按钮中间
+    // 设置文字颜色并绘制开始游戏按钮上的文字(Définir la couleur du texte et dessiner le texte sur le bouton Démarrer le jeu)
+    glColor3f(0.490196f, 0.235294f, 0.596078f); // 富有的紫色文本(Texte riche en violet)
+    drawText("Commencer", 345, 485); // 假设文本在按钮中间(En supposant que le texte se trouve au milieu du bouton)
 
-    // 设置深灰色并在按钮上方绘制游戏说明
-    glColor3f(0.3f, 0.3f, 0.3f); // 深灰色文本
-    drawText("Welcome to Twenty!", 300, 700); // 标题
-    drawText("To play, pick up tiles and drop them onto tiles", 200, 620); // 说明第一部分
-    drawText("with the same value", 300, 560); // 说明第二部分
+    // 设置深灰色并在按钮上方绘制游戏说明(Définir la couleur gris foncé et dessiner la description du jeu au-dessus du bouton.)
+    glColor3f(0.3f, 0.3f, 0.3f); // 深灰色文本(Texte gris foncé)
+    drawText("Welcome to Twenty!", 300, 700); // 标题(légende)
+    drawText("To play, pick up tiles and drop them onto tiles", 200, 620); // 说明第一部分(Partie I de la note)
+    drawText("with the same value", 300, 560); // 说明第二部分(Partie II de la note)
 }
 
-/*绘制重新开始按钮*/
+/*绘制重新开始按钮(Dessiner le bouton de redémarrage)*/
 void drawRestartButton() {
-    glColor3f(0.5, 0.8, 0.5); // 设置按钮颜色
+    glColor3f(0.5, 0.8, 0.5); // 设置按钮颜色(Réglage de la couleur des boutons)
     float buttonWidth = 200;
     float buttonHeight = 50;
     float buttonX = windowWidth / 2 - buttonWidth / 2;
@@ -485,42 +485,42 @@ void drawRestartButton() {
         glVertex2f(buttonX, buttonY + buttonHeight);
     glEnd();
 
-    glColor3f(0.0, 0.0, 0.0); // 黑色文字
+    glColor3f(0.0, 0.0, 0.0); // 黑色文字(lettre noire)
     drawText("Restart", buttonX + 70, buttonY + 15);
 }
 
-/*绘制方块逻辑*/
+/*绘制方块逻辑(Dessin Cube Logique)*/
 void drawBlock(int value, int row, int col) {
-    // 考虑空隙，重新计算 x 和 y 坐标
+    // 考虑空隙，重新计算 x 和 y 坐标(Recalculer les coordonnées x et y en tenant compte des lacunes.)
     float x = borderSize + col * (BLOCK_SIZE + GAP_SIZE) + GAP_SIZE / 2.0f;
     float y = borderSize + row * (BLOCK_SIZE + GAP_SIZE) + GAP_SIZE / 2.0f;
 
-    // 根据方块的值选择颜色
+    // 根据方块的值选择颜色(Choisir la couleur en fonction de la valeur du carré)
     if (value > 0 && value <= 20) {
         glColor3f(colors[value-1][0], colors[value-1][1], colors[value-1][2]);
     } else {
-        glColor3f(0.5, 0.5, 0.5); // 默认颜色
+        glColor3f(0.5, 0.5, 0.5); // 默认颜色(Couleur par défaut)
     }
 
-    drawSquare(x, y, BLOCK_SIZE); // 绘制方块
+    drawSquare(x, y, BLOCK_SIZE); // 绘制方块(dessiner un carré (c'est-à-dire des blocs de traçage))
 
-    // 设置文本颜色（例如黑色）
+    // 设置文本颜色（例如黑色）(Réglage de la couleur du texte (par exemple, noir))
     glColor3f(0.0, 0.0, 0.0);
 
-    // 将数字转换为字符串
+    // 将数字转换为字符串(Conversion de nombres en chaînes de caractères)
     char numStr[3];
     sprintf(numStr, "%d", value);
 
-    // 调整文本位置，使其居中显示在方块上
+    // 调整文本位置，使其居中显示在方块上(Ajuster la position du texte pour qu'il soit centré sur le carré)
     drawText(numStr, x + (BLOCK_SIZE / 2.2), y + (BLOCK_SIZE / 2.2));
 }
 
-/*进度条绘制*/
+/*进度条绘制(Dessin de la barre de progression)*/
 void drawTimerBar() {
-    if (!showTimerBar) return; // 如果不显示进度条，则直接返回
+    if (!showTimerBar) return; // 如果不显示进度条，则直接返回(Si showTimerBar = false , elle est renvoyée directement)
 
     float barWidth = (countdown / GENERATE_INTERVAL) * windowWidth;
-    glColor3f(1.0f, 0.0f, 0.0f); // 红色时间条
+    glColor3f(1.0f, 0.0f, 0.0f); // 红色时间条(barre de temps rouge)
     glBegin(GL_QUADS);
         glVertex2f(windowWidth - barWidth, windowHeight - 20);
         glVertex2f(windowWidth, windowHeight - 20);
@@ -531,18 +531,18 @@ void drawTimerBar() {
 
 
 
-/*绘制游戏画面逻辑*/
-/*绘制游戏画面逻辑*/
+
+/*绘制游戏画面逻辑(Dessiner la logique d'un écran de jeu)*/
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 设置正投影
+    // 设置正投影(Réglage de la projection orthographique)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluOrtho2D(0.0, windowWidth, 0.0, windowHeight);
 
-    // 绘制外围区域背景
-    glColor3f(1.0, 1.0, 1.0); // 白色背景
+    // 绘制外围区域背景(Dessiner l'arrière-plan de la zone périphérique)
+    glColor3f(1.0, 1.0, 1.0); // 白色背景(fond blanc)
     glBegin(GL_QUADS);
         glVertex2f(0, 0);
         glVertex2f(windowWidth, 0);
@@ -550,8 +550,8 @@ void display() {
         glVertex2f(0, windowHeight);
     glEnd();
 
-    // 绘制游戏区域背景
-    glColor3f(0.8, 0.8, 0.8); // 灰色背景
+    // 绘制游戏区域背景(Dessiner l'arrière-plan de la zone de jeu)
+    glColor3f(0.8, 0.8, 0.8); // 灰色背景(Fond gris)
     glBegin(GL_QUADS);
         glVertex2f(borderSize, borderSize);
         glVertex2f(borderSize + gameAreaWidth, borderSize);
@@ -559,26 +559,26 @@ void display() {
         glVertex2f(borderSize, borderSize + gameAreaHeight);
     glEnd();
 
-    // 如果游戏结束
+    // 如果游戏结束(Si le jeu se termine)
     if (gameOver) {
-        glColor3f(1.0, 0.0, 0.0); // 设置红色文本
-        drawText("Game Over", windowWidth / 2 - 50, windowHeight / 2 + 20); // 居中显示游戏结束信息
+        glColor3f(1.0, 0.0, 0.0); // 设置红色文本(Définition du texte en rouge)
+        drawText("Game Over", windowWidth / 2 - 50, windowHeight / 2 + 20); // 居中显示游戏结束信息(Message centré sur le jeu)
 
         char scoreStr[20];
         sprintf(scoreStr, "Final Score: %d", finalMaxScore);
-        drawText(scoreStr, windowWidth / 2 - 60, windowHeight / 2 - 20); // 显示最终得分
+        drawText(scoreStr, windowWidth / 2 - 60, windowHeight / 2 - 20); // 显示最终得分(Afficher le score final)
 
         drawRestartButton();
 
     } else {
-        // 在游戏进行中的绘制逻辑
+        // 在游戏进行中的绘制逻辑(Dessiner la logique au fur et à mesure que le jeu progresse)
         mergeVerticalBlocks();
         riseBlocksIfEmptyAbove(gameBoard);
 
         if (!gameStarted) {
             drawStartButton();
         } else {
-            // 绘制游戏板上的方块和数字
+            // 绘制游戏板上的方块和数字(Dessiner des carrés et des chiffres sur le plateau de jeu)
             for (int i = 0; i < ROWS; i++) {
                 for (int j = 0; j < COLS; j++) {
                     if (gameBoard[i][j] != 0) {
@@ -587,7 +587,7 @@ void display() {
                 }
             }
 
-            // 如果正在拖动方块，则绘制被拖动的方块
+            // 如果正在拖动方块，则绘制被拖动的方块(Si un carré est déplacé, le carré déplacé est dessiné)
             if (isDragging) {
                 int blockValue = gameBoard[draggedBlockY][draggedBlockX];
                 drawBlockAtScreenPosition(blockValue, mouseX, mouseY);
@@ -595,22 +595,22 @@ void display() {
         }
 
         if (gameStarted) {
-            // 获取最大分数
+            // 获取最大分数(Obtenir le score maximum)
             int maxScore = getMaxScore();
 
-            // 将分数转换为字符串
+            // 将分数转换为字符串(Conversion des partitions en chaînes de caractères)
             char scoreStr[20];
             sprintf(scoreStr, "Score: %d", maxScore);
 
-            // 设置文本颜色
+            // 设置文本颜色(Réglage de la couleur du texte)
             glColor3f(1.0, 0.0, 1.0);
 
-            // 绘制分数文本
+            // 绘制分数文本(Tracé d'un texte de fractions)
             int textLength = strlen(scoreStr) * 10;
-            drawText(scoreStr, windowWidth - textLength - 20, windowHeight - 50); // 在窗口右上角绘制文本
+            drawText(scoreStr, windowWidth - textLength - 20, windowHeight - 50); // 在窗口右上角绘制文本(Dessiner du texte dans le coin supérieur droit de la fenêtre)
         }
 
-        // 绘制时间条
+        // 绘制时间条(Dessiner la barre de temps)
         drawTimerBar();
     }
 
@@ -633,30 +633,30 @@ void display() {
 
 
 
-// 主函数
+// 主函数(fonction principale)
 int main(int argc, char** argv) {
-	srand(time(NULL)); // 初始化随机数生成器
+	srand(time(NULL));
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(windowWidth, windowHeight);
     glutCreateWindow("Twenty Game");
 
-    init(); // 初始化设置
+    init(); // 初始化设置( Paramètres d'initialisation)
 
 
-    // 注册回调函数
+    // 注册回调函数(Enregistrement des fonctions de rappel)
     glutDisplayFunc(display);
     glutMouseFunc(mouse);
-    glutMotionFunc(motion);   // 注册鼠标移动事件处理函数
+    glutMotionFunc(motion);
     glutKeyboardFunc(keyboard);
     glutIdleFunc(updateGame);
 
-    // 设置定时器
-    glutTimerFunc(10000, onTimer, 0); // 传递100作为间隔时间参数
+    // 设置定时器(Réglage de la minuterie)
+    glutTimerFunc(10000, onTimer, 0); // 传递10s作为间隔时间参数(Passer 10s comme paramètre d'intervalle)
 
-    // 设置进度条更新的定时器
-    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次updateTimerBar
+    // 设置进度条更新的定时器(Réglage de la minuterie pour les mises à jour de la barre de progression)
+    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次updateTimerBar(Appelle updateTimerBar toutes les 20 millisecondes.)
 
     glutMainLoop();
     return 0;
