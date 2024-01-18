@@ -86,7 +86,7 @@ int mouseX = 0, mouseY = 0; // 鼠标的屏幕坐标（Coordonnées de la souris
 
 /*获取最大分数（Consultation du score maximum）*/
 int getMaxScore() {
-    // 如果游戏结束，返回保存的最大分数
+    // 如果游戏结束，返回保存的最大分数（Si le jeu se termine, le score maximum sauvegardé est restitué.）
     if (gameOver) {
         return finalMaxScore;
     }
@@ -102,7 +102,7 @@ int getMaxScore() {
     }
     return maxScore;
 }
-/*生成新方块：向上平移*/
+/*生成新方块：向上平移（Générer de nouveaux carrés : pan up）*/
 void shiftBlocksUp() {
     for (int i = ROWS-1; i >= 0; i--) {
         for (int j = 0; j < COLS; j++) {
@@ -114,7 +114,7 @@ void shiftBlocksUp() {
        }
 }
 
-/*生成新方块：不生成和上方数字相同的方块*/
+/*生成新方块：不生成和上方数字相同的方块（Générer de nouveaux carrés : ne génère pas de carrés ayant le même numéro que celui qui le précède.）*/
 int generateRandomBlock(int maxVal, int exclude) {
     int newVal;
     do {
@@ -123,9 +123,9 @@ int generateRandomBlock(int maxVal, int exclude) {
     return newVal;
 }
 
-/*生成新方块：底部生成*/
+/*生成新方块：底部生成（Générer de nouveaux carrés : génération du bas）*/
 void generateNewRow() {
-    // 检查最上方一排是否有方块
+    // 检查最上方一排是否有方块（Vérifier la ligne supérieure pour les carrés）
 	for (int j = 0; j < COLS; j++) {
 	        if (gameBoard[ROWS - 1][j] != 0) {
 	            gameOver = true;
@@ -140,13 +140,13 @@ void generateNewRow() {
 	            return;
 	        }
 	    }
-    // 向上移动现有方块
+    // 向上移动现有方块（Déplacer les blocs existants vers le haut）
     shiftBlocksUp();
 
-    // 获取当前最大分数
+    // 获取当前最大分数（Obtenir le score maximum actuel）
     int maxScore = getMaxScore();
 
-    // 为最下方一排生成新方块
+    // 为最下方一排生成新方块（Générer de nouveaux carrés pour la rangée inférieure）
     for (int j = 0; j < COLS; j++) {
         int exclude = (ROWS > 1) ? gameBoard[1][j] : 0;
         gameBoard[0][j] = generateRandomBlock(maxScore - 2, exclude);
@@ -154,35 +154,35 @@ void generateNewRow() {
 }
 
 
-/*初始化游戏*/
+/*初始化游戏（Initialisation du jeu）*/
 void initializeGame() {
     gameStarted = true;
-    showTimerBar = true; // 显示进度条
-    gameOver = false; // 重置游戏结束标志
-    countdown = GENERATE_INTERVAL; // 初始化倒计时
+    showTimerBar = true; // 显示进度条（Afficher la barre de progression）
+    gameOver = false; // 重置游戏结束标志（Réinitialiser le drapeau de fin de jeu）
+    countdown = GENERATE_INTERVAL; // 初始化倒计时（Compte à rebours d'initialisation）
 
-    // 清空游戏板
+    // 清空游戏板（Vider le plateau de jeu）
     for (int i = 0; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
             gameBoard[i][j] = 0;
         }
     }
-    // 生成两排随机方块，确保上下方块数字不同
-    int maxVal = 6; // 假设方块的最大值为6
+    // 生成两排随机方块，确保上下方块数字不同（Générer deux rangées de carrés aléatoires, en veillant à ce que les carrés du haut et du bas aient des nombres différents.）
+    int maxVal = 6; // 假设方块的最大值为6（ En supposant que la valeur maximale du cube est de 6）
     for (int j = 0; j < COLS; j++) {
-        gameBoard[1][j] = rand() % maxVal + 1; // 为倒数第二行生成随机方块
-        gameBoard[0][j] = generateRandomBlock(maxVal, gameBoard[1][j]); // 为最后一行生成随机方块
+        gameBoard[1][j] = rand() % maxVal + 1; // 为倒数第二行生成随机方块（Générer des carrés aléatoires pour l'avant-dernière ligne）
+        gameBoard[0][j] = generateRandomBlock(maxVal, gameBoard[1][j]); // 为最后一行生成随机方块（Générer des carrés aléatoires pour la dernière ligne）
     }
 }
 
 
-/*鼠标操作*/
+/*鼠标操作（Fonctionnement de la souris）*/
 void mouse(int button, int state, int x, int y) {
     int transformedY = windowHeight - y;
 
     if (!gameStarted) {
         if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-            // 检查是否点击了开始按钮
+            // 检查是否点击了开始按钮（Vérifier si le bouton Démarrer est cliqué）
             if (x >= 300 && x <= 500 && transformedY >= 450 && transformedY <= 550) {
                 gameStarted = true;
                 countdown = 0;
@@ -191,13 +191,13 @@ void mouse(int button, int state, int x, int y) {
         }
     } else if (button == GLUT_LEFT_BUTTON) {
         if (state == GLUT_DOWN) {
-            // 开始拖拽
+            // 开始拖拽（Démarrer le Glisser-Déposer）
             draggedBlockX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
             draggedBlockY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
 
             int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
 
-            // 检查是否可以拖动（如果周围有空格或者相同值的方块）
+            // 检查是否可以拖动（如果周围有空格或者相同值的方块）（Vérifier s'il peut être déplacé (s'il y a des espaces ou des carrés de même valeur autour de lui)）
             bool canDrag = false;
             if (draggedBlockY < ROWS - 1 && (gameBoard[draggedBlockY + 1][draggedBlockX] == 0 || gameBoard[draggedBlockY + 1][draggedBlockX] == draggedValue)) {
                 canDrag = true;
@@ -215,44 +215,45 @@ void mouse(int button, int state, int x, int y) {
         } else if (state == GLUT_UP && isDragging) {
             isDragging = false;
 
-            // 计算放置的格子位置
+            // 计算放置的格子位置（Calculer la position de la grille placée）
             int dropX = (x - borderSize) / (BLOCK_SIZE + GAP_SIZE);
             int dropY = (transformedY - borderSize) / (BLOCK_SIZE + GAP_SIZE);
 
             int draggedValue = gameBoard[draggedBlockY][draggedBlockX];
-            gameBoard[draggedBlockY][draggedBlockX] = 0; // 清空原位置
+            gameBoard[draggedBlockY][draggedBlockX] = 0; // 清空原位置（Vider la position d'origine）
 
-            // 自动下落直到找到底部或者另一个方块
+            // 自动下落直到找到底部或者另一个方块（Descente automatique jusqu'à ce que vous trouviez le fond ou un autre carré）
             while (dropY > 0 && (gameBoard[dropY - 1][dropX] == 0 || gameBoard[dropY - 1][dropX] == draggedValue)) {
                 dropY--;
             }
 
-            // 合并或放置方块
+            // 合并或放置方块（Fusionner ou placer des blocs）
             if (gameBoard[dropY][dropX] == draggedValue) {
-                gameBoard[dropY][dropX]++; // 合并方块
+                gameBoard[dropY][dropX]++; // 合并方块（fusionner les carrés）
             } else if (gameBoard[dropY][dropX] == 0) {
-                gameBoard[dropY][dropX] = draggedValue; // 放置方块
+                gameBoard[dropY][dropX] = draggedValue; // 放置方块（cube de chute）
             } else {
                 // 恢复原位置的方块（如果目标位置不为空，且不与拖动的方块值相同）
+            	// Rétablir le carré dans sa position d'origine (si la position cible n'est pas vide et n'a pas la même valeur que le carré déplacé
                 gameBoard[draggedBlockY][draggedBlockX] = draggedValue;
             }
 
-            // 重置拖动状态
+            // 重置拖动状态(Réinitialisation de l'état de la glissière)
             draggedBlockX = -1;
             draggedBlockY = -1;
         }
     }
     if (gameOver && button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
-            // 计算按钮的区域
+            // 计算按钮的区域(Calculer la surface du bouton)
             float buttonWidth = 200;
             float buttonHeight = 50;
             float buttonX = windowWidth / 2 - buttonWidth / 2;
             float buttonY = windowHeight / 2 - 100;
 
-            // 检查点击是否在按钮区域内
+            // 检查点击是否在按钮区域内(Vérifier si le clic se situe à l'intérieur de la zone du bouton)
             if (x >= buttonX && x <= (buttonX + buttonWidth) &&
                 windowHeight - y >= buttonY && windowHeight - y <= (buttonY + buttonHeight)) {
-                // 重置游戏状态
+                // 重置游戏状态(Réinitialisation de l'état du jeu)
                 initializeGame();
             }
         }
@@ -271,25 +272,25 @@ void mouse(int button, int state, int x, int y) {
 
 void motion(int x, int y) {
     mouseX = x;
-    mouseY = windowHeight - y; // 转换 y 坐标
-    glutPostRedisplay(); // 请求重绘
+    mouseY = windowHeight - y; // 转换 y 坐标( Conversion de la coordonnée y)
+    glutPostRedisplay(); // 请求重绘(demander un nouveau dessin)
     printf("Mouse Position: (%d, %d)\n", mouseX, mouseY);
 }
 
 
-/*键盘操作*/
+/*键盘操作(Fonctionnement du clavier)*/
 void keyboard(unsigned char key, int x, int y) {
-    if (key == 27) { // 按 ESC 退出
+    if (key == 27) { // 按 ESC 退出(Appuyez sur ESC pour quitter)
         exit(0);
     }
 }
 
-/*更新游戏状态*/
+/*更新游戏状态(Mise à jour du statut du jeu)*/
 void updateGame() {
-    // 检查顶部是否有方块
+    // 检查顶部是否有方块(Vérifier la présence de carrés dans la partie supérieure)
     for (int j = 0; j < COLS; j++) {
         if (gameBoard[0][j] != 0) {
-            // 游戏结束逻辑
+            // 游戏结束逻辑(Logique du Game Over)
             break;
         }
     }
@@ -303,23 +304,24 @@ void updateGame() {
 
 
 /************************************************************************游戏规则*******************************************************************/
+/**********************************************************************règles du jeu*******************************************************************/
 
 
 void mergeVerticalBlocks() {
     for (int col = 0; col < COLS; col++) {
-        for (int row = ROWS - 1; row > 0; row--) { // 从底部开始向上检查
+        for (int row = ROWS - 1; row > 0; row--) { // 从底部开始向上检查(En commençant par le bas et en vérifiant vers le haut)
             if (gameBoard[row][col] != 0 && gameBoard[row][col] == gameBoard[row - 1][col]) {
-                // 合并方块
+                // 合并方块（fusionner les carrés）
                 gameBoard[row][col]++;
                 gameBoard[row - 1][col] = 0;
 
-                // 合并后，上方方块可能会导致新的合并，继续检查
+                // 合并后，上方方块可能会导致新的合并，继续检查（Après la fusion, le carré du haut peut provoquer une nouvelle fusion.）
                 for (int checkRow = row - 1; checkRow > 0; checkRow--) {
                     if (gameBoard[checkRow][col] == gameBoard[checkRow - 1][col]) {
                         gameBoard[checkRow][col]++;
                         gameBoard[checkRow - 1][col] = 0;
                     } else {
-                        break; // 不需要进一步检查
+                        break; // 不需要进一步检查（Aucun autre examen n'est nécessaire）
                     }
                 }
             }
@@ -328,20 +330,22 @@ void mergeVerticalBlocks() {
 }
 
 void riseBlocksIfEmptyAbove(int gameBoard[ROWS][COLS]) {
-    // 从第二行开始向上遍历（最顶行无需检查）
+    // 从第二行开始向上遍历（最底行无需检查）
+	//Traverser vers le haut à partir de la deuxième rangée (il n'est pas nécessaire de vérifier la rangée inférieure).
     for (int i = 1; i < ROWS; i++) {
         for (int j = 0; j < COLS; j++) {
-            // 当前位置有方块且上方为空时
+            // 当前位置有方块下方为空时(Lorsqu'il y a des carrés vides sous la position actuelle)
             while (gameBoard[i][j] != 0 && gameBoard[i - 1][j] == 0) {
-                // 将方块上移
+                // 将方块下移（Déplacez le carré vers le bas.）
                 gameBoard[i - 1][j] = gameBoard[i][j];
                 gameBoard[i][j] = 0;
 
-                // 继续检查上一行，直到遇到非空位置或到达顶部
+                // 继续检查上一行，直到遇到非空位置或到达底部
+                //Continuez à vérifier la ligne précédente jusqu'à ce que vous rencontriez une position non vide ou que vous atteigniez le bas de la page.
                 if (i > 1) {
                     i--;
                 } else {
-                    break; // 到达顶部
+                    break; // 到达底部(Au fond)
                 }
             }
         }
@@ -359,19 +363,19 @@ void riseBlocksIfEmptyAbove(int gameBoard[ROWS][COLS]) {
 
 
 
-//方块刷新计时器
+//方块刷新计时器(Minuterie de rafraîchissement du cube)
 void onTimer(int value) {
     if (!gameStarted) {
     	 countdown = 0;
     	 glutTimerFunc(10000, onTimer, 0);
-        return; // 如果游戏未开始，直接返回
+        return; // 如果游戏未开始，直接返回(Si le jeu n'a pas commencé, retournez directement à)
     }
-        countdown -= 10000; // 减少倒计时
+        countdown -= 10000; // 减少倒计时( Réduction du compte à rebours)
 
         if (countdown <= 0) {
-            generateNewRow();  // 生成新的一行方块
-            updateGame();      // 更新游戏状态
-            countdown = GENERATE_INTERVAL; // 重置倒计时
+            generateNewRow();  // 生成新的一行方块(Générer une nouvelle rangée de carrés)
+            updateGame();      // 更新游戏状态(Mise à jour du statut du jeu)
+            countdown = GENERATE_INTERVAL; // 重置倒计时(Réinitialiser le compte à rebours)
         }
 
         glutPostRedisplay();
@@ -380,28 +384,29 @@ void onTimer(int value) {
 }
 
 
-//进度条计时器
+//进度条计时器(Barre de progression du timer)
 void updateTimerBar(int value) {
     if (!gameStarted) {
     	countdown = 0;
     	glutTimerFunc(20, updateTimerBar, 0);
-        return; // 如果游戏未开始，直接返回
+        return; // 如果游戏未开始，直接返回(Si le jeu n'a pas commencé, retourne immédiatement)
     }
     countdown -= 20;
     if (countdown <= 0) {
-        countdown = GENERATE_INTERVAL; // 重置倒计时
+        countdown = GENERATE_INTERVAL; // 重置倒计时(Réinitialiser le compte à rebours)
     }
 
     glutPostRedisplay();
 
-    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次更新进度条
+    glutTimerFunc(20, updateTimerBar, 0); // 每20毫秒调用一次更新进度条(Appeler la mise à jour de la barre de progression toutes les 20 millisecondes)
 }
 
 
 /***********************************************************************绘制代码**************************************************************************/
+/***********************************************************************Code de dessin**************************************************************************/
 
 
-/*绘制方块*/
+/*绘制方块(dessiner un carré)*/
 
 void drawSquare(float x, float y, float size) {
     glBegin(GL_QUADS);
@@ -412,7 +417,7 @@ void drawSquare(float x, float y, float size) {
     glEnd();
 }
 
-/*绘制文本*/
+/*绘制文本(Dessiner un texte)*/
 void drawText(const char *text, float x, float y) {
     glRasterPos2f(x, y);
     for (const char *c = text; *c != '\0'; c++) {
@@ -420,7 +425,7 @@ void drawText(const char *text, float x, float y) {
     }
 }
 
-/*绘制被拖拽的方块*/
+/*绘制被拖拽的方块(Tracer des carrés tirés au cordeau)*/
 void drawBlockAtScreenPosition(int value, int screenX, int screenY) {
     float x = screenX - BLOCK_SIZE / 2.0f;
     float y = screenY - BLOCK_SIZE / 2.0f;
@@ -428,12 +433,13 @@ void drawBlockAtScreenPosition(int value, int screenX, int screenY) {
     if (value > 0 && value <= 20) {
         glColor3f(colors[value-1][0], colors[value-1][1], colors[value-1][2]);
     } else {
-        glColor3f(0.5, 0.5, 0.5); // 默认颜色
+        glColor3f(0.5, 0.5, 0.5); // 默认颜色(Couleur par défaut)
     }
 
     drawSquare(x, y, BLOCK_SIZE);
 
     // 设置文本颜色（例如黑色）
+    //Réglage de la couleur du texte (par exemple, noir)
     glColor3f(0.0, 0.0, 0.0);
     char numStr[3];
     sprintf(numStr, "%d", value);
@@ -442,7 +448,7 @@ void drawBlockAtScreenPosition(int value, int screenX, int screenY) {
 
 
 
-/*绘制开始按钮*/
+/*绘制开始按钮(Dessiner le bouton de démarrage)*/
 void drawStartButton() {
     // 绘制按钮
     glColor3f(0.968627f, 0.862745f, 0.435294f); // 奶油白色按钮
