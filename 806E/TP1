@@ -1,0 +1,48 @@
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Float32
+from custom_messages.msg import CartesianState
+from .position_interpolation.position_interpolation import PositionInterpolation
+import numpy as np
+
+class TrajectorySample(Node):
+    def __init__(self):
+        super().__init__('trajectory_sample')
+        self.publisher_ = self.create_publisher(CartesianState, 'desired_state', 10)
+        self.subscription = self.create_subscription(Float32,'time',self.listener_callback,10)
+        # TODO  
+        #       - Initialize node to be publisher and subscriber to the necessary topics
+        #       - Initialize main variables
+        #       - Create callback function able to compute the position and velocity for a given instant t
+
+        pi                  = np.array([1.0,2.0])
+        pf                  = np.array([3.0,4.0])
+        self.pos_interp     = PositionInterpolation(pi,pf,2.0)
+
+    def listener_callback(self,msg):
+        t = msg.data
+
+        position = self.pos_interp.p(t)
+        velocity = self.pos_interp.pdot(t)
+
+        msg_out = CartesianState()
+        msg_out.x = position[0]
+        msg_out.y = position[1]
+        msg_out.xdot = velocity[0]
+        msg_out.ydot = velocity[1]
+                
+        self.publisher_.publish(msg_out)
+        self.get_logger().info('Publishig: "%s"' % msg.data)
+
+
+        
+def main(args=None):
+    rclpy.init(args=args)
+    trajectory_sample = TrajectorySample()
+    rclpy.spin(trajectory_sample)
+    trajectory_sample.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()  
