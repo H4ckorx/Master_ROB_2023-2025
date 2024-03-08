@@ -37,14 +37,36 @@ def saveAndShowHsv (npImg,string) :
 
 
 
-def getAndDrawHisto (gImg):
-    histo = np.zeros(256,dtype = np.uint)
+
+
+def getAndDrawHisto(gImg):
+    # 确定图像的最大和最小亮度值
+    minVal, maxVal = np.min(gImg), np.max(gImg)
     
+    # 如果图像是常量，直接返回
+    if minVal == maxVal: 
+        return np.zeros(256, dtype=np.uint)
     
+    # 初始化直方图
+    histo = np.zeros(256, dtype=np.uint)
     
+    # 计算亮度转换因子
+    scale = 255 / (maxVal - minVal)
+    
+    # 填充直方图
+    for pixel in gImg.flatten():
+        index = int((pixel - minVal) * scale)
+        histo[index] += 1
+    
+    # 绘制直方图
     plt.plot(histo)
+    plt.title("Image Histogram")
+    plt.xlabel("Brightness Level")
+    plt.ylabel("Frequency")
     plt.show()
-    return( histo)
+    
+    return histo
+
 
 
 
@@ -64,3 +86,9 @@ hsvImg = np.zeros((rows,cols),np.dtype('d'))
 ShowImg (greyImg)
 saveAndShowGrey (rgbImg,'1−greyImg.png')
 saveAndShowHsv (rgbImg,'HsvImg.jpg') 
+
+"""
+Expliquer le principe de l'image teinte'
+"""
+
+getAndDrawHisto(rgbImg)
