@@ -1,0 +1,66 @@
+from PIL import Image
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+rgbImg = np.array(Image.open ('rainbow.jpeg'))
+
+"""Partie 2"""
+
+print(type( rgbImg ) )
+print( rgbImg . dtype )
+print( rgbImg . shape )
+
+def ShowImg (npImg):
+    img = Image.fromarray( npImg )
+    img.show ( )
+    return img
+
+
+
+def saveAndShowGrey (npImg,string) :
+    img = Image.fromarray( npImg )
+    img = img.convert('L') #Mode échelle de gris
+    img.save(string)
+    img.show ( )
+    return img
+
+
+def saveAndShowHsv (npImg,string) :
+    
+    img = Image.fromarray( npImg )
+    img = img.convert('HSV')
+    h,s,v = img.split()
+    h.save(string)
+    h.show ( )
+    return img
+
+
+
+def getAndDrawHisto (gImg):
+    histo = np.zeros(256,dtype = np.uint)
+    
+    
+    
+    plt.plot(histo)
+    plt.show()
+    return( histo)
+
+
+
+rows = rgbImg.shape[0]
+cols = rgbImg.shape[1]
+
+
+greyImg = np.zeros((rows,cols),np.dtype('d'))
+for i in range(rows):
+    for j in range(cols):
+        greyImg[i, j] = np.dot(rgbImg[i, j], [1, 0, 0])
+        
+hsvImg = np.zeros((rows,cols),np.dtype('d'))
+
+
+        
+ShowImg (greyImg)
+saveAndShowGrey (rgbImg,'1−greyImg.png')
+saveAndShowHsv (rgbImg,'HsvImg.jpg') 
