@@ -1,0 +1,66 @@
+import rclpy
+from rclpy.node import Node
+from std_msgs.msg import Bool
+from custom_messages.msg import KinData, RefPosition  # Replace 'your_package' with the name of your actual package
+import csv
+import os
+
+class HighLevelManager(Node):
+    def __init__(self):
+        super().__init__('high_level_manager')
+        self.subscription_kin_data = self.create_subscription(
+            KinData,
+            '/kin_data',
+            self.kin_data_callback,
+            10)
+        self.subscription_launch = self.create_subscription(
+            Bool,
+            '/launch',
+            self.launch_callback,
+            10)
+        self.publisher_ref_position = self.create_publisher(
+            RefPosition,
+            '/ref_position',
+            10)
+        self.launch_flag = False
+        self.last_ref_position = None
+        self.trajectory_data = self.read_trajectory_data('trajectories/test.csv')
+
+
+    def read_trajectory_data(self, file_path):
+        trajectory = []
+        with open(file_path, mode='r') as csv_file:
+            csv_reader = csv.DictReader(csv_file)
+            for row in csv_reader:
+                trajectory.append(RefPosition(x=float(row['x']), y=float(row['y'])))
+        return trajectory
+
+    def kin_data_callback(self, msg):
+        if not self.launch_flag:
+            return
+
+        # Initialize the trajectory_generator with the first message
+        if self.last_ref_position is None:
+            self.last_ref_position = self.trajectory_data[0]
+            self.publisher_ref_position.publish(self.last_ref_position)
+        else:
+            current_position = RefPosition(x=msg.x, y=msg.y)
+            # Check if the streamed pose is equal to the last reference pose sent
+            if current_position.x == self.last_ref_position.x and current_position.y == self.last_ref_position.y:
+                next_index = self.trajectory_data.index(self.last_ref_position) + 1
+                if next_index < len(self.trajectory_data):
+                    self.last_ref_position = self.trajectory_data[next_index]
+                    self.publisher_ref_position.publish(self.last_ref_position)
+
+    def launch_callback(self, msg):
+        self.launch_flag = msg.data
+
+def main(args=None):
+    rclpy.init(args=args)
+    high_level_manager = HighLevelManager()
+    rclpy.spin(high_level_manager)
+    high_level_manager.destroy_node()
+    rclpy.shutdown()
+
+if __name__ == '__main__':
+    main()
