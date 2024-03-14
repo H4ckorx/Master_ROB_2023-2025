@@ -1,0 +1,41 @@
+import rclpy
+from rclpy.node import Node
+from sensor_msgs.msg import JointState
+from custom_messages.msg import KinData
+from .position_interpolation.position_interpolation import PositionInterpolation
+import numpy as np
+
+class KinematicModel(Node):
+    def __init__(self):
+        super().__init__('kinematic_model')
+        self.declare_parameter('l1', 1.0)
+        self.declare_parameter('l2', 1.0)
+        self.publisher_         = self.create_publisher(KinData, 'kin_data', 10)
+        self.subs_joint_states  = self.create_subscription(
+            JointState,
+            'joint_states',
+            self.listener_callback,
+            10)
+        self.subs_joint_states
+
+    def listener_callback(self, joint_states):
+        q0,q1                   = joint_states.position
+        kin_data                = KinData()
+        self.l1                 = self.get_parameter('l1').value
+        self.l2                 = self.get_parameter('l2').value
+        kin_data.x              = self.l1 * np.cos(q0) + self.l2 * np.cos(q0 + q1)
+        kin_data.y              = self.l1 * np.sin(q0) + self.l2 * np.sin(q0 + q1)
+        kin_data.jacobian       = [-self.l1*np.sin(q0) - self.l2*np.sin(q1+q0)  ,-self.l2*np.sin(q1 + q0),
+                                    self.l1*np.cos(q0) + self.l2*np.cos(q1+q0)  , self.l2*np.cos(q1 + q0)]
+        self.publisher_.publish(kin_data)
+        
+def main(args=None):
+    rclpy.init(args=args)
+    kinematic_model = KinematicModel()
+    rclpy.spin(kinematic_model)
+    kinematic_model.destroy_node()
+    rclpy.shutdown()
+
+
+if __name__ == '__main__':
+    main()
