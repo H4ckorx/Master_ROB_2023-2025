@@ -6,35 +6,24 @@ from std_msgs.msg import Float64MultiArray
 from sensor_msgs.msg import JointState
 import math
 import numpy as np
-import matplotlib.pyplot as plt  # MATLAB plotting functions
-
+import matplotlib.pyplot as plt  # Not focusing on plotting functions
 
 # Constants
 pi = math.pi
 tf = 40.0
-a1 = 0.0771
-a2 = 0.05
-a3 = 0.004
-a4 = 0.0284
-a5 = 0.03625
-a6 = 0.0185
-a7 = 0.11175
-a8 = -0.01
-a9 = 0.15
-t = np.zeros((1,1000000))
-Kp = np.diag([1.0, 1.0, 1.0])
-qd = np.zeros((4,2))
-Xi = np.zeros((3, 1))
-Xf = np.array([[0.2615], [0.1740], [0.0540]])
+a1, a2, a3, a4, a5, a6, a7, a8, a9 = 0.0771, 0.05, 0.004, 0.0284, 0.03625, 0.0185, 0.11175, -0.01, 0.15
+Kp = np.diag([1.0, 1.0, 1.0])  # Proportional gain
+t = np.zeros((1,1000000))  # Time array
+Xi = np.zeros((3, 1))  # Initial position
+Xf = np.array([[0.2615], [0.1740], [0.0540]])  # Final desired position
 x_t = np.zeros((3,1000000))
 x_d = np.zeros((3,1000000))
+qd = np.zeros((4,2))
 q_t = np.zeros((4,1000000))
 q_td = np.zeros((4,1000000))
 
 
-
-
-l_arm = ['l_shoulder_y', 'l_shoulder_x', 'l_arm_z', 'l_elbow_y']
+l_arm = ['l_shoulder_y', 'l_shoulder_x', 'l_arm_z', 'l_elbow_y']  # Joint names
 
 class PoppyController(Node):
     def __init__(self):
@@ -106,63 +95,7 @@ class PoppyController(Node):
         # Init done, now start the control loop
         self.run_timer = self.create_timer(0.1, self.run)
 
-    def run(self):
 
-        dt = self.get_time() - self.t0
-        t[0, self.index+1] = dt
-
-        if dt < tf:
-            xt,yt,zt = self.Gen_traj(Xi,0.2615,0.1749,0.0540,dt,tf)
-            Xd = np.array([[xt],[yt],[zt]])
-
-            x, y, z = self.calc_mgd()
-            X = np.array([[x],[y],[z]])
-
-            Xp = Kp @ (Xd - X)
-            qp = self.Jacob(Xp)
-
-            for i in range(4):
-              
-                qd[i, 1] = qp[i]*(t[0, self.index+1] - t[0, self.index]) + qd[i, 0] 
-                qd[i, 0] = qd[i, 1]
-
-            self.set_motor_position('l_elbow_y', qd[0, 1])  
-            self.set_motor_position('l_arm_z', qd[1, 1]) 
-            self.set_motor_position('l_shoulder_y', qd[2, 1]) 
-            self.set_motor_position('l_shoulder_x', qd[3, 1])
-
-
-
-            t[0, self.index] = dt
-    
-            x_t[0, self.index] = X[0]
-            x_t[1, self.index] = X[1]
-            x_t[2, self.index] = X[2]
-
-            x_d[0, self.index] = Xd[0]
-            x_d[1, self.index] = Xd[1]
-            x_d[2, self.index] = Xd[2]
-    
-            q_t[0, self.index] = qd[0, 0]
-            q_t[1, self.index] = qd[1, 0]
-            q_t[2, self.index] = qd[2, 0]
-            q_t[3, self.index] = qd[3, 0]
-        
-            q_td[0, self.index] = qp[0, 0]
-            q_td[1, self.index] = qp[1, 0]
-            q_td[2, self.index] = qp[2, 0]
-            q_td[3, self.index] = qp[3, 0]
-    
-    
-            self.index = self.index+1
-    
-            self.cmd_publisher_.publish(self.cmd_)
-        else:
-            self.plot()
-    def update_motor_positions(self, qd):
-    # Setting the position of all joints
-        for i, name in enumerate(l_arm):
-            self.set_motor_position(name, qd[i])
 
     def plot(self):
         # Use dictionaries to store data and labels for cyclic processing
@@ -224,38 +157,62 @@ class PoppyController(Node):
 
 
     def calc_mgd(self):
+        # Retrieve the current positions of the joints
+        q1 = self.get_motor_position('l_shoulder_y')
+        q2 = self.get_motor_position('l_shoulder_x')
+        q3 = self.get_motor_position('l_arm_z')
+        q4 = self.get_motor_position('l_elbow_y')
+
+        # Pre-compute cosines and sines of the joint angles to simplify equations
+        c1, c2, c3, c4 = np.cos(q1), np.cos(q2), np.cos(q3), np.cos(q4)
+        s1, s2, s3, s4 = np.sin(q1), np.sin(q2), np.sin(q3), np.sin(q4)
+
+        # Apply forward kinematics formulas to calculate the end-effector position
+        x = (c2 * c4 + s2 * s3 * s4) * a9 + c2 * a7 + s2 * s3 * a8 + c2 * a5 + a4 + a1
+        y = (-s1 * s2 * c4 + (s1 * c2 * s3 - c1 * c3) * s4) * a9 - s1 * s2 * a7 + (s1 * c2 * s3 - c1 * c3) * a8 - s1 * s2 * a5 - c1 * a6 + a2
+        z = (c1 * s2 * c4 + (-c1 * c2 * s3 - s1 * c3) * s4) * a9 + c1 * s2 * a7 + (-c1 * c2 * s3 - s1 * c3) * a8 + c1 * s2 * a5 - s1 * a6 + a3
+
+        # Return the calculated position of the end-effector
+        return x, y, z
+
+
+    def Jacob(self, Kp):
+        """
+        Calculate the Jacobian inverse matrix for proportional control.
+
+        Parameters:
+        - Kp: Proportional gain matrix.
+
+        Returns:
+        - Ja: Adjusted Jacobian matrix used for calculating joint velocities.
+        """
+    
+        # Retrieve the current joint angles
         q1 = self.get_motor_position(l_arm[0])
         q2 = self.get_motor_position(l_arm[1])
         q3 = self.get_motor_position(l_arm[2])
         q4 = self.get_motor_position(l_arm[3])
-
-        x = (np.cos(q2)*np.cos(q4)+np.sin(q2)*np.sin(q3)*np.sin(q4))*a9+np.cos(q2)*a7+np.sin(q2)*np.sin(q3)*a8+np.cos(q2)*a5+a4+a1
-        y = (-np.sin(q1)*np.sin(q2)*np.cos(q4)+(np.sin(q1)*np.cos(q2)*np.sin(q3)-np.cos(q1)*np.cos(q3))*np.sin(q4))*a9-np.sin(q1)*np.sin(q2)*a7+(np.sin(q1)*np.cos(q2)*np.sin(q3)-np.cos(q1)*np.cos(q3))*a8-np.sin(q1)*np.sin(q2)*a5-np.cos(q1)*a6+a2
-        z = (np.cos(q1)*np.sin(q2)*np.cos(q4)+(-np.cos(q1)*np.cos(q2)*np.sin(q3)-np.sin(q1)*np.cos(q3))*np.sin(q4))*a9+np.cos(q1)*np.sin(q2)*a7+(-np.cos(q1)*np.cos(q2)*np.sin(q3)-np.sin(q1)*np.cos(q3))*a8+np.cos(q1)*np.sin(q2)*a5-np.sin(q1)*a6+a3
-
         
-
-        return x,y,z
-
-
-    def Jacob(self,q1,q2,q3,q4):
+        # Define constants for matrix elements to improve readability
+        c2, c3, c4 = np.cos(q2), np.cos(q3), np.cos(q4)
+        s2, s3, s4 = np.sin(q2), np.sin(q3), np.sin(q4)
+        c1, s1 = np.cos(q1), np.sin(q1)
+        
+        # Calculate the Jacobian matrix based on the robot's kinematics
         J = np.array([
-        [0, 
-         -0.15*np.sin(q2)*np.cos(q4) - 0.148*np.sin(q2) + 0.15*np.sin(q3)*np.sin(q4)*np.cos(q2) - 0.01*np.sin(q3)*np.cos(q2), 
-         0.15*np.sin(q2)*np.sin(q4)*np.cos(q3) - 0.01*np.sin(q2)*np.cos(q3), 
-         0.15*np.sin(q2)*np.sin(q3)*np.cos(q4) - 0.15*np.sin(q4)*np.cos(q2)],
-        
-        [(0.15*np.sin(q1)*np.cos(q3) + 0.15*np.sin(q3)*np.cos(q1)*np.cos(q2))*np.sin(q4) - 0.01*np.sin(q1)*np.cos(q3) + 0.0185*np.sin(q1) - 0.15*np.sin(q2)*np.cos(q1)*np.cos(q4) - 0.148*np.sin(q2)*np.cos(q1) - 0.01*np.sin(q3)*np.cos(q1)*np.cos(q2), 
-         -0.15*np.sin(q1)*np.sin(q2)*np.sin(q3)*np.sin(q4) + 0.01*np.sin(q1)*np.sin(q2)*np.sin(q3) - 0.15*np.sin(q1)*np.cos(q2)*np.cos(q4) - 0.148*np.sin(q1)*np.cos(q2), 
-         (0.15*np.sin(q1)*np.cos(q2)*np.cos(q3) + 0.15*np.sin(q3)*np.cos(q1))*np.sin(q4) - 0.01*np.sin(q1)*np.cos(q2)*np.cos(q3) - 0.01*np.sin(q3)*np.cos(q1), 
-         (0.15*np.sin(q1)*np.sin(q3)*np.cos(q2) - 0.15*np.cos(q1)*np.cos(q3))*np.cos(q4) + 0.15*np.sin(q1)*np.sin(q2)*np.sin(q4)],
-        
-        [(0.15*np.sin(q1)*np.sin(q3)*np.cos(q2) - 0.15*np.cos(q1)*np.cos(q3))*np.sin(q4) - 0.15*np.sin(q1)*np.sin(q2)*np.cos(q4) - 0.148*np.sin(q1)*np.sin(q2) - 0.01*np.sin(q1)*np.sin(q3)*np.cos(q2) + 0.01*np.cos(q1)*np.cos(q3) - 0.0185*np.cos(q1), 
-         0.15*np.sin(q2)*np.sin(q3)*np.sin(q4)*np.cos(q1) - 0.01*np.sin(q2)*np.sin(q3)*np.cos(q1) + 0.15*np.cos(q1)*np.cos(q2)*np.cos(q4) + 0.148*np.cos(q1)*np.cos(q2), 
-         (0.15*np.sin(q1)*np.sin(q3) - 0.15*np.cos(q1)*np.cos(q2)*np.cos(q3))*np.sin(q4) - 0.01*np.sin(q1)*np.sin(q3) + 0.01*np.cos(q1)*np.cos(q2)*np.cos(q3), 
-         (-0.15*np.sin(q1)*np.cos(q3) - 0.15*np.sin(q3)*np.cos(q1)*np.cos(q2))*np.cos(q4) - 0.15*np.sin(q2)*np.sin(q4)*np.cos(q1)]
+            [0, -0.15 * s2 * c4 - 0.148 * s2 + 0.15 * s3 * s4 * c2 - 0.01 * s3 * c2, 0.15 * s2 * s4 * c3 - 0.01 * s2 * c3, 0.15 * s2 * s3 * c4 - 0.15 * s4 * c2],
+            [(0.15 * s1 * c3 + 0.15 * s3 * c1 * c2) * s4 - 0.01 * s1 * c3 + 0.0185 * s1 - 0.15 * s2 * c1 * c4 - 0.148 * s2 * c1 - 0.01 * s3 * c1 * c2, -0.15 * s1 * s2 * s3 * s4 + 0.01 * s1 * s2 * s3 - 0.15 * s1 * c2 * c4 - 0.148 * s1 * c2, (0.15 * s1 * c2 * c3 + 0.15 * s3 * c1) * s4 - 0.01 * s1 * c2 * c3 - 0.01 * s3 * c1, (0.15 * s1 * s3 * c2 - 0.15 * c1 * c3) * c4 + 0.15 * s1 * s2 * s4],
+            [(0.15 * s1 * s3 * c2 - 0.15 * c1 * c3) * s4 - 0.15 * s1 * s2 * c4 - 0.148 * s1 * s2 - 0.01 * s1 * s3 * c2 + 0.01 * c1 * c3 - 0.0185 * c1, 0.15 * s2 * s3 * s4 * c1 - 0.01 * s2 * s3 * c1 + 0.15 * c1 * c2 * c4 + 0.148 * c1 * c2, (0.15 * s1 * s3 - 0.15 * c1 * c2 * c3) * s4 - 0.01 * s1 * s3 + 0.01 * c1 * c2 * c3, (-0.15 * s1 * c3 - 0.15 * s3 * c1 * c2) * c4 - 0.15 * s2 * s4 * c1]
         ])
-        return J
+        
+        # Compute the pseudo-inverse of the Jacobian
+        Jt = np.linalg.pinv(J)
+        
+        # Adjust the Jacobian with the proportional gain
+        Ja = Jt @ Kp
+        
+        return Ja
+
 
     def Gen_traj(self, Xi, xd, yd, zd, dt, tf):
         """
@@ -273,12 +230,17 @@ class PoppyController(Node):
         if not 0 <= dt <= tf:
             raise ValueError("Current time dt should be within the range [0, tf]")
 
-        D = np.array([xd, yd, zd]) - Xi
+        Dx = xd - Xi[0]
+        Dy = yd - Xi[1]
+        Dz = zd - Xi[2]
+
         rt = 10 * (dt/tf)**3 - 15 * (dt/tf)**4 + 6 * (dt/tf)**5
 
-        Xt = Xi + rt * D
+        xt = Xi[0] + rt *Dx
+        yt = Xi[1] + rt *Dy
+        zt = Xi[2] + rt *Dz
 
-        return Xt
+        return xt,yt,zt
 
     def get_motor_position(self, joint_name):
         index = self.joint_index(joint_name)
@@ -307,7 +269,61 @@ class PoppyController(Node):
         sec_nsec = self.get_clock().now().seconds_nanoseconds()
         return sec_nsec[0] + 1e-9 * sec_nsec[1]
 
+    def run(self):
 
+        dt = self.get_time() - self.t0
+        t[0, self.index+1] = dt
+
+        if dt < tf:
+            xt,yt,zt = self.Gen_traj(Xi,0.2615,0.1749,0.0540,dt,tf)
+            Xd = np.array([[xt],[yt],[zt]])
+
+            x, y, z = self.calc_mgd()
+            X = np.array([[x],[y],[z]])
+
+            Xp = Kp @ (Xd - X)
+            qp = self.Jacob(Xp)
+
+            for i in range(4):
+              
+                qd[i, 1] = qp[i]*(t[0, self.index+1] - t[0, self.index]) + qd[i, 0] 
+                qd[i, 0] = qd[i, 1]
+
+            self.set_motor_position('l_elbow_y', qd[0, 1])  
+            self.set_motor_position('l_arm_z', qd[1, 1]) 
+            self.set_motor_position('l_shoulder_y', qd[2, 1]) 
+            self.set_motor_position('l_shoulder_x', qd[3, 1])
+
+
+
+            t[0, self.index] = dt
+    
+            x_t[0, self.index] = X[0]
+            x_t[1, self.index] = X[1]
+            x_t[2, self.index] = X[2]
+
+            x_d[0, self.index] = Xd[0]
+            x_d[1, self.index] = Xd[1]
+            x_d[2, self.index] = Xd[2]
+    
+            q_t[0, self.index] = qd[0, 0]
+            q_t[1, self.index] = qd[1, 0]
+            q_t[2, self.index] = qd[2, 0]
+            q_t[3, self.index] = qd[3, 0]
+        
+            q_td[0, self.index] = qp[0, 0]
+            q_td[1, self.index] = qp[1, 0]
+            q_td[2, self.index] = qp[2, 0]
+            q_td[3, self.index] = qp[3, 0]
+    
+    
+            self.index = self.index+1
+    
+            self.cmd_publisher_.publish(self.cmd_)
+        else:
+            self.plot()
+    
+    
 def main(args=None):
     rclpy.init(args=args)
 
@@ -323,4 +339,3 @@ def main(args=None):
 
 if __name__ == '__main__':
     main()
-
