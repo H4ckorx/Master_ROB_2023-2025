@@ -1,0 +1,69 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+% The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
+\usepackage{cite}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithmic}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\begin{document}
+
+\title{Étude et mise en œuvre d’un système de récupération d’énergie RF ambiante
+
+{\footnotesize \textsuperscript{}}
+\thanks{}
+}
+
+\author{\IEEEauthorblockN{ ZEYU YIN}
+\IEEEauthorblockA{\textit{Électronique, Énergie Électrique, Automatisme } \\
+\textit{Université de Montpellier}\\
+Montpellier, France \\
+yinzeyu20000301@gmail.com}
+
+}
+
+\maketitle
+
+\begin{abstract}
+   Cette étude explore la mise en œuvre d'un système de récupération d'énergie RF pour alimenter les dispositifs IoT, en utilisant le circuit AEM30940. L'efficacité de ce système est évaluée dans diverses conditions, avec une proposition de modèle pour optimiser le placement des récupérateurs RF. Les résultats démontrent que l'énergie RF ambiante peut prolonger la durée de vie des batteries des dispositifs électroniques, favorisant un écosystème technologique durable. 
+\end{abstract}
+
+
+\begin{IEEEkeywords}
+ Récupération d'énergie RF, Efficacité énergétique, IoT, BME680, AEM30940
+\end{IEEEkeywords}
+
+\section{Introduction}
+ Face aux défis urgents en matière d'énergie et d'environnement au niveau mondial, l'exploitation de l'énergie ambiante se positionne comme une méthode cruciale pour réduire l'empreinte énergétique des technologies contemporaines. Cette approche, qui se concentre sur l'utilisation des ressources énergétiques présentes partout mais souvent sous-exploitées dans notre environnement, s'avère être particulièrement pertinente pour fournir de l'énergie aux appareils électroniques à faible consommation. Le présent document vise à examiner les progrès récents dans le domaine de la récupération d'énergie RF (radiofréquence), une forme d'énergie présente partout et capable de fournir une source d'alimentation continue pour des applications telles que l'Internet des Objets (IoT). En détaillant les processus de conversion de l'énergie RF en électricité utilisable, cet article explore comment ces technologies peuvent non seulement améliorer l'autonomie des appareils sans fil, mais également contribuer à un développement durable et respectueux de l'environnement. Nous étudierons les différentes configurations des systèmes de récupération, leur intégration dans les structures existantes et les défis techniques liés à leur optimisation. Enfin, nous aborderons les perspectives à venir de ces technologies, en examinant les répercussions technologiques, économiques et écologiques de leur mise en œuvre à grande échelle.
+
+\section{Microsources d'Énergie pour la Récupération}
+
+\subsection{Introduction aux Microsources d'Énergie}
+
+Les microsources d'énergie désignent les technologies capables de capter et convertir de petites quantités d'énergies dispersées dans l'environnement en électricité utile. Cette approche, essentielle pour répondre aux enjeux de durabilité et d'autonomie énergétique, permet d'alimenter des dispositifs peu gourmands en énergie, tels que ceux utilisés dans l'Internet des Objets (IoT). En exploitant des sources telles que les vibrations mécaniques, la chaleur résiduelle, les ondes RF et la lumière ambiante, ces technologies ouvrent la voie à de nouvelles applications en termes de dispositifs autonomes et écologiques.
+
+
+\subsection{Récupération de l'Énergie Mécanique}
+La récupération de l'énergie mécanique à travers des technologies comme les transducteurs piézoélectriques et les générateurs électromagnétiques est un domaine en plein essor. Ces dispositifs transforment l'énergie des mouvements physiques, tels que les vibrations des machines ou les pas des piétons, en électricité. Par exemple, des dalles piézoélectriques installées dans des lieux à fort trafic piétonnier, comme les gares ou les trottoirs de métropoles, peuvent générer de l'électricité à partir de la pression des pas. Cette énergie est ensuite utilisable pour alimenter l'éclairage public, les panneaux d'affichage, ou encore pour charger des dispositifs mobiles. Ce type de technologie non seulement optimise l'utilisation d'énergies souvent perdues, mais encourage également les villes à devenir plus écologiques et autonomes en énergie.
+
+\subsection{Récupération de l'Énergie Thermique}
+La récupération d'énergie thermique, notamment par les convertisseurs thermoélectriques, permet de transformer les différences de température en électricité. Les générateurs thermoélectriques exploitent l'effet Seebeck, où une différence de température entre deux matériaux conducteurs génère une tension électrique. Un exemple notable de cette technologie est son utilisation pour récupérer la chaleur des systèmes d'échappement des véhicules. Les fabricants de voitures, comme BMW et Volkswagen, ont expérimenté des systèmes qui récupèrent la chaleur des gaz d'échappement pour produire de l'électricité, améliorant ainsi l'efficacité énergétique du véhicule et réduisant les émissions de CO2. Ces systèmes peuvent potentiellement réduire la consommation de carburant des véhicules conventionnels et électriques en diminuant la charge des batteries.
+
+\subsection{Récupération de l'Énergie RF}
+L'énergie RF (radiofréquence) est omniprésente, émise par des sources telles que les antennes cellulaire, les satellites, et les réseaux WiFi. Des dispositifs de récupération d'énergie RF, tels que les circuits à diode et les antennes spécialisées, peuvent capter cette énergie perdue pour alimenter des dispositifs électroniques. Par exemple, des chercheurs de l'Université de Washington ont développé un système appelé "Power Over Wi-Fi" capable de charger des appareils électroniques en utilisant uniquement des signaux Wi-Fi comme source d'énergie. Cette innovation illustre comment l'énergie RF peut être exploitée pour fournir une source d'alimentation continue et durable pour les appareils de l'IoT, notamment dans des environnements urbains où les signaux RF sont abondants.
+
+\subsection{Récupération de l'Énergie Lumineuse}
+La récupération de l'énergie lumineuse via des cellules photovoltaïques est déjà bien établie, mais l'intégration de cette technologie dans des contextes urbains et portables ouvre de nouvelles perspectives. Les cellules solaires flexibles, par exemple, peuvent être intégrées dans les vêtements ou les sacs à dos pour alimenter des appareils portables grâce à la lumière solaire captée durant les déplacements. En outre, des revêtements photovoltaïques transparents sont désormais appliqués sur les fenêtres des bâtiments, permettant de capter l'énergie solaire sans compromettre la transparence et l'esthétique. Ces innovations non seulement maximisent l'utilisation de surfaces auparavant non exploitées mais contribuent également à la création de bâtiments à énergie positive.
+
+\subsection{Synthèse des Technologies de Récupération d'Énergie}
+La récupération d'énergie ambiante, couvrant les modalités mécanique, thermique, RF et lumineuse, représente une avancée technologique cruciale vers une gestion énergétique plus durable et intelligente. Ces méthodes, bien qu'hétérogènes dans leurs applications et mécanismes, convergent vers un objectif commun : exploiter efficacement l'énergie disponible de manière non intrusive et respectueuse de l'environnement.
+
+L'intégration de ces diverses technologies ouvre la voie à des systèmes polyvalents capables d'optimiser la capture et la conversion d'énergie dans des scénarios variés. Par exemple, un dispositif intégré dans un environnement urbain pourrait utiliser la récupération d'énergie mécanique pour capter l'énergie des pas des passants, tandis que des panneaux solaires sur des bâtiments et des capteurs RF captureraient l'énergie solaire et les ondes radio, respectivement. La combinaison de ces technologies permettrait non seulement de maximiser la récolte d'énergie mais aussi de garantir une alimentation continue et adaptée aux besoins spécifiques de l'infrastructure ou du dispositif concerné.
+
+La symbiose de ces méthodes souligne également l'importance de l'innovation interdisciplinaire dans le domaine de la récupération d'énergie. Les progrès dans les matériaux, la nanotechnologie, et les circuits intégrés jouent un rôle fondamental dans l'amélioration de l'efficacité de ces systèmes de récupération. Chaque avancée dans un domaine particulier peut potentiellement amplifier les capacités des autres, menant à des améliorations substantielles de l'efficacité globale du système.
+
+En définitive, la récupération d'énergie en tant que système intégré promet non seulement de réduire notre dépendance aux combustibles fossiles mais également de contribuer à une réduction significative de notre empreinte écologique. Ce domaine représente donc un aspect vital de la recherche en énergie renouvelable, avec des implications profondes pour l'avenir de la technologie durable et de l'autonomie énergétique. La poursuite de la recherche et le développement dans ce secteur sont essentiels pour réaliser le plein potentiel des microsources d'énergie, et pour répondre efficacement aux défis énergétiques de demain.
+
