@@ -236,17 +236,29 @@ Comme le capteur BME680 est connecté à l'arduino via I2C, j'ai utilisé le cod
 
 \subsection{Carte d'évaluation AEM30940}
 Le AEM30940 est un circuit intégré conçu spécifiquement pour la récupération d'énergie RF. Ce module excelle dans la capture de l'énergie des signaux RF disponibles, même ceux à faible puissance, grâce à sa capacité à fonctionner avec des fréquences variant entre 50 MHz et 6 GHz. Son architecture optimisée permet une conversion efficace de l'énergie RF en tension continue utilisable. Ce composant est également caractérisé par son extrême faible consommation d'énergie en veille, ce qui est crucial pour les applications IoT où la minimisation de la consommation d'énergie est essentielle. De plus, le AEM30940 intègre des fonctionnalités de gestion de l'énergie, permettant une charge directe des batteries et le support de multiples sources d'énergie, ce qui le rend particulièrement adapté pour les dispositifs autonomes dans des environnements variés.
+
 \begin{figure}[htbp]
     \centerline{\includegraphics[width=0.35\textwidth]{aem30940.png}}
     \caption{Carte d'évaluation AEM30940.}
     \label{fig}
 \end{figure}
 
+Le dispositif AEM30940, pilier de notre étude sur la gestion de l'énergie, se caractérise par la présence de deux connecteurs SMA dédiés respectivement aux entrées de basse et de haute tension. Juste en dessous de ces connecteurs se trouve un bouton permettant de sélectionner l'entrée désirée selon le niveau de puissance requis pour l'application en cours de test. La carte est également équipée d'un supercondensateur, stratégiquement placé au niveau de la sortie haute tension, pour assurer une alimentation énergétique optimale et continue. Dans le cadre de nos expérimentations, une résistance de 10 kiloohms a été choisie comme charge au niveau de cette sortie, afin de simuler un scénario de consommation réaliste. De surcroît, le circuit intègre une variété de connecteurs et de borniers qui offrent une flexibilité remarquable pour la configuration et la personnalisation du système en fonction des exigences spécifiques de l'étude.
 
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.5\textwidth]{simple.png}}
+    \caption{Schéma de principe simplifié.}
+    \label{fig}
+\end{figure}
+Il s'agit d'une version simplifiée du circuit, la carte AEM30940 remplit essentiellement toutes les fonctions du côté gauche, le côté droit fabrique la résistance de 10k ohm que nous avons choisie comme charge.
 
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.5\textwidth]{cfg.png}}
+    \caption{Utilisation du CFG.}
+    \label{fig}
+\end{figure}
 
-
-
+Il s'agit d'une note d'application pour la configuration, qui fournit des informations sur cette configuration. La configuration que j'ai choisie est "Single-cell supercapacitor"
 
 
 
