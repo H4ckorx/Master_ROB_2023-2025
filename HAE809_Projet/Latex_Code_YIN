@@ -28,50 +28,51 @@ yinzeyu20000301@gmail.com}
 \maketitle
 
 \begin{abstract}
-   Cette étude explore la mise en œuvre d'un système de récupération d'énergie RF pour alimenter les dispositifs IoT, en utilisant le circuit AEM30940. L'efficacité de ce système est évaluée dans diverses conditions, avec une proposition de modèle pour optimiser le placement des récupérateurs RF. Les résultats démontrent que l'énergie RF ambiante peut prolonger la durée de vie des batteries des dispositifs électroniques, favorisant un écosystème technologique durable. 
+   La récupération d'énergie RF, ou récupération de l'énergie des radiofréquences, représente une avenue prometteuse dans le domaine de la technologie durable. Cette technique vise à capter l'énergie des ondes électromagnétiques omniprésentes dans notre environnement, émises par une multitude de dispositifs tels que les stations de base de télécommunication, les appareils mobiles et autres équipements émettant des signaux RF. L'intérêt de cette technologie réside dans sa capacité à fournir une source d'énergie alternative et écologique, potentiellement inépuisable.
+
+Dans un contexte où la durabilité énergétique devient une priorité mondiale, l'efficacité de la conversion de l'énergie RF en électricité pourrait significativement réduire la dépendance aux batteries et autres sources d'énergie moins écologiques. Les applications sont variées et couvrent des domaines tels que l'alimentation des dispositifs IoT, qui sont de plus en plus présents dans notre quotidien et requièrent une gestion autonome de l'énergie pour une efficacité et une praticité optimales.
+
+Le développement de cette technologie pourrait transformer la manière dont les appareils sont alimentés, en passant d'une dépendance aux sources d'énergie traditionnelles à une utilisation plus large de l'énergie ambiante disponible. Cela représente non seulement un progrès pour la gestion de l'énergie à petite échelle mais aussi une réduction significative de l'impact environnemental des technologies modernes. À long terme, l'intégration de la récupération d'énergie RF pourrait s'avérer cruciale pour l'avancement des villes intelligentes et des réseaux énergétiques durables.
+
+Ce domaine en plein essor appelle donc à une exploration plus approfondie pour surmonter les défis techniques actuels et maximiser le potentiel de cette source d'énergie révolutionnaire. En tant que sujet de recherche, il ouvre des voies prometteuses pour des avancées significatives en matière d'innovation technologique et de développement durable.
 \end{abstract}
 
 
 \begin{IEEEkeywords}
- Récupération d'énergie RF, Efficacité énergétique, IoT, BME680, AEM30940
+ Energie RF, Durabilité, IoT, Technologie, Innovation 
 \end{IEEEkeywords}
 
 \section{Introduction}
- Dans un contexte mondial marqué par des défis énergétiques et environnementaux pressants, l'exploitation des énergies ambiantes émerge comme une stratégie cruciale pour réduire l'empreinte énergétique des technologies contemporaines. Ce document se concentre sur l'analyse approfondie de la récupération d'énergie RF (radiofréquence), une source d'énergie omniprésente capable d'alimenter de manière continue des applications telles que l'Internet des Objets (IoT). Notre étude vise à explorer comment l'intégration de la récupération d'énergie RF peut non seulement prolonger l'autonomie des appareils sans fil, mais également contribuer à un développement technologique durable et respectueux de l'environnement.
+ Cet article explore l'application de la technologie de récupération d'énergie RF dans le contexte des réseaux de capteurs sans fil, un domaine essentiel pour le développement des villes intelligentes et des technologies durables. Les capteurs environnementaux, qui jouent un rôle crucial dans la collecte de données pour ces applications, nécessitent souvent des sources d'alimentation autonomes et écologiques. La technologie RF offre une solution prometteuse en captant l'énergie des ondes radioélectriques omniprésentes générées par des sources telles que les émetteurs de télécommunication et les réseaux mobiles.
 
-Le document est structuré en trois parties principales. La première partie présente une vue d'ensemble des différentes microsources d'énergie — mécanique, thermique, RF et lumineuse — en mettant l'accent sur leur potentiel pour l'alimentation autonome des dispositifs électroniques. La deuxième partie se penche sur les capteurs sans fil, étudiant les divers protocoles de communication et leur consommation énergétique, illustrée par des cas pratiques tels que le capteur BME680.
+Le cœur de ce projet est l'utilisation du circuit intégré AEM30940, conçu spécifiquement pour la récupération d'énergie RF à haute efficacité. Ce composant est capable de convertir les signaux RF disponibles en énergie électrique, même à partir de sources de faible puissance dispersées dans l'environnement urbain. Le dispositif de récupération est intégré avec un Arduino MKR1000, qui facilite la gestion de l'énergie recueillie et le contrôle des capteurs connectés, en l'occurrence le capteur BME680. Ce dernier est utilisé pour surveiller divers paramètres environnementaux tels que la température, la pression, l'humidité et la qualité de l'air, fournissant ainsi des données précieuses pour une multitude d'applications IoT.
 
-La troisième et dernière partie, qui est le cœur de notre étude, détaille la mise en œuvre spécifique d’un système de récupération d'énergie RF ambiante. Nous explorons les aspects techniques de la capture et de la conversion des ondes RF en électricité utilisable, les défis liés à l'intégration de ces systèmes dans les infrastructures existantes et les solutions potentielles pour optimiser leur efficacité. Cette section souligne l'importance de l'innovation dans les techniques de stockage d'énergie et la mise en œuvre des unités de gestion de puissance (PMU), essentielles pour garantir la viabilité et la durabilité des applications de récupération d'énergie RF.
+En complément de l'aspect hardware, ce projet implique un volet significatif de développement logiciel. La programmation en C/C++ sur la plateforme Arduino est utilisée pour traiter les données des capteurs, exécuter des algorithmes de gestion de l'énergie, et communiquer avec des plateformes IoT telles que Thinger.io. Cette plateforme permet de visualiser et d'analyser les données collectées en temps réel, offrant ainsi une interface utilisateur accessible pour suivre l'état et le rendement des capteurs.
 
-En conclusion, ce travail ne se contente pas de présenter les avancées technologiques dans le domaine de la récupération d'énergie mais s'efforce également de contextualiser ces innovations dans un cadre d'application réel, évaluant les implications technologiques, économiques et écologiques de leur mise en œuvre à grande échelle. À travers cette analyse détaillée, nous espérons fournir une base solide pour les recherches futures et le développement de solutions énergétiques innovantes et respectueuses de l'environnement, en mettant un accent particulier sur l'énergie RF comme pilier de cette évolution.
+Cette étude implique une compréhension approfondie des principes de l'électronique, des communications sans fil et du traitement de signal. Elle nécessite également une familiarisation avec les principes de programmation des microcontrôleurs et des compétences en conception de systèmes embarqués. Le projet a été enrichi par une revue exhaustive de la littérature scientifique et des ressources en ligne, permettant de rester à la pointe des dernières avancées technologiques dans le domaine de la récupération d'énergie RF.
 
-\section{Microsources d'Énergie pour la Récupération}
+\section{Matériels et méthodologie}
 
-\subsection{Introduction aux Microsources d'Énergie}
+\subsection{Carte d'évaluation AEM30940}
+Le AEM30940 est un circuit intégré conçu spécifiquement pour la récupération d'énergie RF. Ce module excelle dans la capture de l'énergie des signaux RF disponibles, même ceux à faible puissance, grâce à sa capacité à fonctionner avec des fréquences variant entre 50 MHz et 6 GHz. Son architecture optimisée permet une conversion efficace de l'énergie RF en tension continue utilisable. Ce composant est également caractérisé par son extrême faible consommation d'énergie en veille, ce qui est crucial pour les applications IoT où la minimisation de la consommation d'énergie est essentielle. De plus, le AEM30940 intègre des fonctionnalités de gestion de l'énergie, permettant une charge directe des batteries et le support de multiples sources d'énergie, ce qui le rend particulièrement adapté pour les dispositifs autonomes dans des environnements variés.
 
-Les microsources d'énergie désignent les technologies capables de capter et convertir de petites quantités d'énergies dispersées dans l'environnement en électricité utile. Cette approche, essentielle pour répondre aux enjeux de durabilité et d'autonomie énergétique, permet d'alimenter des dispositifs peu gourmands en énergie, tels que ceux utilisés dans l'Internet des Objets (IoT). En exploitant des sources telles que les vibrations mécaniques, la chaleur résiduelle, les ondes RF et la lumière ambiante, ces technologies ouvrent la voie à de nouvelles applications en termes de dispositifs autonomes et écologiques.
 
+\subsection{Capteur BME680}
+Le BME680 est un capteur environnemental avancé qui permet de mesurer la température, l'humidité, la pression atmosphérique et la qualité de l'air (VOC). En ce qui concerne la communication, ce capteur utilise les protocoles I²C et SPI, offrant une flexibilité dans la connexion avec divers microcontrôleurs, y compris l'Arduino MKR1000. Côté consommation énergétique, le BME680 est optimisé pour une faible consommation, essentielle pour prolonger la durée de vie des dispositifs IoT alimentés par batterie. Cette caractéristique est particulièrement importante dans les applications où les capteurs doivent fonctionner de manière prolongée sans maintenance fréquente, rendant le BME680 idéal pour les applications de surveillance environnementale à long terme.
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.35\textwidth]{BME680.png}}
+    \caption{Capteur MKR1000.}
+    \label{fig}
+\end{figure}
 
-\subsection{Récupération de l'Énergie Mécanique}
-La récupération de l'énergie mécanique à travers des technologies comme les transducteurs piézoélectriques et les générateurs électromagnétiques est un domaine en plein essor. Ces dispositifs transforment l'énergie des mouvements physiques, tels que les vibrations des machines ou les pas des piétons, en électricité. Par exemple, des dalles piézoélectriques installées dans des lieux à fort trafic piétonnier, comme les gares ou les trottoirs de métropoles, peuvent générer de l'électricité à partir de la pression des pas. Cette énergie est ensuite utilisable pour alimenter l'éclairage public, les panneaux d'affichage, ou encore pour charger des dispositifs mobiles. Ce type de technologie non seulement optimise l'utilisation d'énergies souvent perdues, mais encourage également les villes à devenir plus écologiques et autonomes en énergie.
+\subsection{La Carte Arduino MKR1000}
+L'Arduino MKR1000 est une plateforme de développement microcontrôleur adaptée aux projets IoT nécessitant une connectivité Wi-Fi. Opérant à des fréquences CPU de 48 MHz, ce dispositif est caractérisé par ses capacités de communication sans fil intégrées grâce à un module Wi-Fi. Cette fonctionnalité permet non seulement une intégration facile avec divers réseaux, mais contribue également à un déploiement rapide et efficace des applications IoT. Les caractéristiques supplémentaires de l'Arduino MKR1000 incluent sa compatibilité avec une multitude de capteurs et dispositifs via les protocoles de communication standards, ce qui le rend extrêmement versatile pour de multiples usages dans des environnements connectés.
+\begin{figure}[htbp]
+\centerline{\includegraphics{图片1.png}}
+\caption{Arduino MKR1000.}
+\label{fig}
+\end{figure}
 
-\subsection{Récupération de l'Énergie Thermique}
-La récupération d'énergie thermique, notamment par les convertisseurs thermoélectriques, permet de transformer les différences de température en électricité. Les générateurs thermoélectriques exploitent l'effet Seebeck, où une différence de température entre deux matériaux conducteurs génère une tension électrique. Un exemple notable de cette technologie est son utilisation pour récupérer la chaleur des systèmes d'échappement des véhicules. Les fabricants de voitures, comme BMW et Volkswagen, ont expérimenté des systèmes qui récupèrent la chaleur des gaz d'échappement pour produire de l'électricité, améliorant ainsi l'efficacité énergétique du véhicule et réduisant les émissions de CO2. Ces systèmes peuvent potentiellement réduire la consommation de carburant des véhicules conventionnels et électriques en diminuant la charge des batteries.
-
-\subsection{Récupération de l'Énergie RF}
-L'énergie RF (radiofréquence) est omniprésente, émise par des sources telles que les antennes cellulaire, les satellites, et les réseaux WiFi. Des dispositifs de récupération d'énergie RF, tels que les circuits à diode et les antennes spécialisées, peuvent capter cette énergie perdue pour alimenter des dispositifs électroniques. Par exemple, des chercheurs de l'Université de Washington ont développé un système appelé "Power Over Wi-Fi" capable de charger des appareils électroniques en utilisant uniquement des signaux Wi-Fi comme source d'énergie. Cette innovation illustre comment l'énergie RF peut être exploitée pour fournir une source d'alimentation continue et durable pour les appareils de l'IoT, notamment dans des environnements urbains où les signaux RF sont abondants.
-
-\subsection{Récupération de l'Énergie Lumineuse}
-La récupération de l'énergie lumineuse via des cellules photovoltaïques est déjà bien établie, mais l'intégration de cette technologie dans des contextes urbains et portables ouvre de nouvelles perspectives. Les cellules solaires flexibles, par exemple, peuvent être intégrées dans les vêtements ou les sacs à dos pour alimenter des appareils portables grâce à la lumière solaire captée durant les déplacements. En outre, des revêtements photovoltaïques transparents sont désormais appliqués sur les fenêtres des bâtiments, permettant de capter l'énergie solaire sans compromettre la transparence et l'esthétique. Ces innovations non seulement maximisent l'utilisation de surfaces auparavant non exploitées mais contribuent également à la création de bâtiments à énergie positive.
-
-\subsection{Synthèse des Technologies de Récupération d'Énergie}
-La récupération d'énergie ambiante, couvrant les modalités mécanique, thermique, RF et lumineuse, représente une avancée technologique cruciale vers une gestion énergétique plus durable et intelligente. Ces méthodes, bien qu'hétérogènes dans leurs applications et mécanismes, convergent vers un objectif commun : exploiter efficacement l'énergie disponible de manière non intrusive et respectueuse de l'environnement.
-
-L'intégration de ces diverses technologies ouvre la voie à des systèmes polyvalents capables d'optimiser la capture et la conversion d'énergie dans des scénarios variés. Par exemple, un dispositif intégré dans un environnement urbain pourrait utiliser la récupération d'énergie mécanique pour capter l'énergie des pas des passants, tandis que des panneaux solaires sur des bâtiments et des capteurs RF captureraient l'énergie solaire et les ondes radio, respectivement. La combinaison de ces technologies permettrait non seulement de maximiser la récolte d'énergie mais aussi de garantir une alimentation continue et adaptée aux besoins spécifiques de l'infrastructure ou du dispositif concerné.
-
-La symbiose de ces méthodes souligne également l'importance de l'innovation interdisciplinaire dans le domaine de la récupération d'énergie. Les progrès dans les matériaux, la nanotechnologie, et les circuits intégrés jouent un rôle fondamental dans l'amélioration de l'efficacité de ces systèmes de récupération. Chaque avancée dans un domaine particulier peut potentiellement amplifier les capacités des autres, menant à des améliorations substantielles de l'efficacité globale du système.
-
-En définitive, la récupération d'énergie en tant que système intégré promet non seulement de réduire notre dépendance aux combustibles fossiles mais également de contribuer à une réduction significative de notre empreinte écologique. Ce domaine représente donc un aspect vital de la recherche en énergie renouvelable, avec des implications profondes pour l'avenir de la technologie durable et de l'autonomie énergétique. La poursuite de la recherche et le développement dans ce secteur sont essentiels pour réaliser le plein potentiel des microsources d'énergie, et pour répondre efficacement aux défis énergétiques de demain.
 
 
 
@@ -86,14 +87,142 @@ En définitive, la récupération d'énergie en tant que système intégré prom
 \subsection{ Introduction (contexte sur l’utilisation des capteurs sans fil)}
 Les capteurs sans fil sont devenus essentiels dans de nombreux domaines tels que l'automatisation industrielle, la surveillance environnementale, et la gestion intelligente des bâtiments. Leur capacité à fonctionner sans connexions physiques permet une flexibilité et une adaptabilité accrues dans les déploiements sur de vastes zones ou dans des endroits difficiles d'accès. Toutefois, ces dispositifs doivent gérer efficacement leur consommation d'énergie pour prolonger leur durée de vie et réduire la nécessité de maintenance.
 
+
+Dans le cadre de notre étude, le capteur BME680 a été choisi pour sa capacité à mesurer avec précision plusieurs paramètres environnementaux tels que la température, l'humidité, la pression atmosphérique, et la qualité de l'air. Ce choix s'appuie sur sa polyvalence et sa fiabilité dans la collecte de données environnementales précises, ce qui est crucial pour nos tests et analyses. Pour mener à bien nos expérimentations, nous avons également utilisé la plateforme Arduino MKR1000, qui se distingue par sa facilité d'utilisation et sa capacité à intégrer divers capteurs et modules via des protocoles de communication tels que I2C et SPI. L'Arduino MKR1000, grâce à sa connectivité Wi-Fi intégrée, a permis une transmission efficace des données récoltées par le BME680, facilitant ainsi la surveillance en temps réel et la collecte de données à distance, deux aspects fondamentaux de notre projet de recherche. Cette configuration technologique met en lumière la manière dont les capteurs sans fil, associés à des microcontrôleurs avancés, peuvent transformer les méthodes de surveillance environnementale et d'analyse des données.
+
+
+
 \subsection{Les différents protocoles de communications}
 Les protocoles de communication pour les capteurs sans fil varient en fonction de la portée, de l'énergie, et de la bande passante nécessaire. Des standards tels que Zigbee, Bluetooth Low Energy (BLE), et LoRa sont couramment utilisés. Zigbee est préféré pour les applications nécessitant une haute fréquence de communication et une faible consommation d'énergie. BLE est idéal pour les dispositifs portables en raison de sa faible consommation d'énergie et de sa bonne portée. LoRa, quant à lui, offre une portée beaucoup plus étendue, ce qui le rend parfait pour les applications de surveillance à grande échelle.
 
+En complément à ces technologies, le BME680, un capteur environnemental avancé, utilise les protocoles de communication I2C et SPI, ce qui le rend extrêmement versatile pour différentes configurations système. L'I2C est souvent choisi pour des applications nécessitant des connexions de capteurs multiples sur un même bus avec une configuration de câblage minimaliste, rendant le système économique et efficace énergétiquement. D'autre part, le protocole SPI est utilisé pour des applications où des vitesses de transmission de données plus élevées sont requises, offrant des performances supérieures pour les tâches critiques en temps réel.
+
+L'utilisation de ces deux protocoles permet au BME680 de s'adapter à une large gamme d'applications IoT, depuis la surveillance de la qualité de l'air intérieur jusqu'à des dispositifs portables, tout en assurant une gestion optimale de la consommation d'énergie. Cela souligne l'importance de choisir le bon protocole de communication en fonction des spécificités de l'application et des exigences en termes de performance, de coût et de consommation énergétique.
+
+
+
 \subsection{ Analyse de consommation énergétique des capteurs et transmissions}
-La consommation énergétique des capteurs sans fil est critique, surtout lorsqu'ils sont alimentés par des batteries ou des sources d'énergie récupérée. Il est essentiel de comprendre comment la consommation énergétique est affectée par les cycles de mesure et de transmission des données. Des optimisations telles que le réveil périodique du capteur ou l'utilisation d'algorithmes de compression des données peuvent réduire significativement la consommation d'énergie.
+Les protocoles de communication pour les capteurs sans fil varient en fonction de la portée, de l'énergie, et de la bande passante nécessaire. Des standards tels que Zigbee, Bluetooth Low Energy (BLE), et LoRa sont couramment utilisés. Zigbee est préféré pour les applications nécessitant une haute fréquence de communication et une faible consommation d'énergie. BLE est idéal pour les dispositifs portables en raison de sa faible consommation d'énergie et de sa bonne portée. LoRa, quant à lui, offre une portée beaucoup plus étendue, ce qui le rend parfait pour les applications de surveillance à grande échelle.
+
+En complément à ces technologies, le BME680, un capteur environnemental avancé, utilise les protocoles de communication I2C et SPI, ce qui le rend extrêmement versatile pour différentes configurations système. L'I2C est souvent choisi pour des applications nécessitant des connexions de capteurs multiples sur un même bus avec une configuration de câblage minimaliste, rendant le système économique et efficace énergétiquement. D'autre part, le protocole SPI est utilisé pour des applications où des vitesses de transmission de données plus élevées sont requises, offrant des performances supérieures pour les tâches critiques en temps réel.
+
+L'utilisation de ces deux protocoles permet au BME680 de s'adapter à une large gamme d'applications IoT, depuis la surveillance de la qualité de l'air intérieur jusqu'à des dispositifs portables, tout en assurant une gestion optimale de la consommation d'énergie. Cela souligne l'importance de choisir le bon protocole de communication en fonction des spécificités de l'application et des exigences en termes de performance, de coût et de consommation énergétique.
 
 \subsection{Mise en œuvre du capteur BME680}
 Le BME680 est un exemple de capteur environnemental intégrant des fonctions de mesure de température, d'humidité, de pression atmosphérique, et de qualité de l'air. Son implémentation dans un réseau de capteurs sans fil nécessite une attention particulière à la fréquence des mesures et à la gestion de l'énergie pour optimiser la durée de vie de la batterie tout en garantissant la précision et la pertinence des données collectées.
 
 \subsection{Conclusion}
 En conclusion, le choix du protocole de communication et la gestion efficace de la consommation d'énergie sont déterminants pour le succès de l'implémentation des capteurs sans fil. L'optimisation de ces aspects permet non seulement de prolonger l'autonomie des capteurs mais aussi d'améliorer la fiabilité et l'utilité des données qu'ils fournissent. La mise en œuvre de capteurs comme le BME680 dans des réseaux étendus illustre l'importance d'une planification minutieuse et d'une connaissance approfondie des besoins spécifiques de chaque application.
+
+
+\subsection{Authors and Affiliations}
+\textbf{The class file is designed for, but not limited to, six authors.} A 
+minimum of one author is required for all conference articles. Author names 
+should be listed starting from left to right and then moving down to the 
+next line. This is the author sequence that will be used in future citations 
+and by indexing services. Names should not be listed in columns nor group by 
+affiliation. Please keep your affiliations as succinct as possible (for 
+example, do not differentiate among departments of the same organization).
+
+\subsection{Identify the Headings}
+Headings, or heads, are organizational devices that guide the reader through 
+your paper. There are two types: component heads and text heads.
+
+Component heads identify the different components of your paper and are not 
+topically subordinate to each other. Examples include Acknowledgments and 
+References and, for these, the correct style to use is ``Heading 5''. Use 
+``figure caption'' for your Figure captions, and ``table head'' for your 
+table title. Run-in heads, such as ``Abstract'', will require you to apply a 
+style (in this case, italic) in addition to the style provided by the drop 
+down menu to differentiate the head from the text.
+
+Text heads organize the topics on a relational, hierarchical basis. For 
+example, the paper title is the primary text head because all subsequent 
+material relates and elaborates on this one topic. If there are two or more 
+sub-topics, the next level head (uppercase Roman numerals) should be used 
+and, conversely, if there are not at least two sub-topics, then no subheads 
+should be introduced.
+
+\subsection{Figures and Tables}
+\paragraph{Positioning Figures and Tables} Place figures and tables at the top and 
+bottom of columns. Avoid placing them in the middle of columns. Large 
+figures and tables may span across both columns. Figure captions should be 
+below the figures; table heads should appear above the tables. Insert 
+figures and tables after they are cited in the text. Use the abbreviation 
+``Fig.~\ref{fig}'', even at the beginning of a sentence.
+
+\begin{table}[htbp]
+\caption{Table Type Styles}
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Table}&\multicolumn{3}{|c|}{\textbf{Table Column Head}} \\
+\cline{2-4} 
+\textbf{Head} & \textbf{\textit{Table column subhead}}& \textbf{\textit{Subhead}}& \textbf{\textit{Subhead}} \\
+\hline
+copy& More table copy$^{\mathrm{a}}$& &  \\
+\hline
+\multicolumn{4}{l}{$^{\mathrm{a}}$Sample of a Table footnote.}
+\end{tabular}
+\label{tab1}
+\end{center}
+\end{table}
+
+\begin{figure}[htbp]
+\centerline{\includegraphics{fig1.png}}
+\caption{Example of a figure caption.}
+\label{fig}
+\end{figure}
+
+Figure Labels: Use 8 point Times New Roman for Figure labels. Use words 
+rather than symbols or abbreviations when writing Figure axis labels to 
+avoid confusing the reader. As an example, write the quantity 
+``Magnetization'', or ``Magnetization, M'', not just ``M''. If including 
+units in the label, present them within parentheses. Do not label axes only 
+with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization 
+\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of 
+quantities and units. For example, write ``Temperature (K)'', not 
+``Temperature/K''.
+
+\section*{Acknowledgment}
+
+The preferred spelling of the word ``acknowledgment'' in America is without 
+an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B. 
+G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor 
+acknowledgments in the unnumbered footnote on the first page.
+
+\section*{References}
+
+Please number citations consecutively within brackets \cite{b1}. The 
+sentence punctuation follows the bracket \cite{b2}. Refer simply to the reference 
+number, as in \cite{b3}---do not use ``Ref. \cite{b3}'' or ``reference \cite{b3}'' except at 
+the beginning of a sentence: ``Reference \cite{b3} was the first $\ldots$''
+
+Number footnotes separately in superscripts. Place the actual footnote at 
+the bottom of the column in which it was cited. Do not put footnotes in the 
+abstract or reference list. Use letters for table footnotes.
+
+Unless there are six authors or more give all authors' names; do not use 
+``et al.''. Papers that have not been published, even if they have been 
+submitted for publication, should be cited as ``unpublished'' \cite{b4}. Papers 
+that have been accepted for publication should be cited as ``in press'' \cite{b5}. 
+Capitalize only the first word in a paper title, except for proper nouns and 
+element symbols.
+
+For papers published in translation journals, please give the English 
+citation first, followed by the original foreign-language citation \cite{b6}.
+
+\begin{thebibliography}{00}
+\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
+\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
+\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
+\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
+\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
+\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
+\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
+\end{thebibliography}
+\vspace{12pt}
+\color{red}
+IEEE conference templates contain guidance text for composing and formatting conference papers. Please ensure that all template text is removed from your conference paper prior to submission to the conference. Failure to remove the template text from your paper may result in your paper not being published.
+
+\end{document}
