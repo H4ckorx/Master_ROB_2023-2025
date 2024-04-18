@@ -7,12 +7,38 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
-
+\usepackage{listings}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[french]{babel}
 \usepackage{array}
 
+\usepackage{color} % Pour ajouter des couleurs à votre code
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+   backgroundcolor=\color{backcolour},   
+   commentstyle=\color{codegreen},
+   keywordstyle=\color{magenta},
+   numberstyle=\tiny\color{codegray},
+   stringstyle=\color{codepurple},
+   basicstyle=\ttfamily\footnotesize,
+   breakatwhitespace=false,         
+   breaklines=true,                 
+   captionpos=b,                    
+   keepspaces=true,                 
+   numbers=left,                    
+   numbersep=5pt,                  
+   showspaces=false,                
+   showstringspaces=false,
+   showtabs=false,                  
+   tabsize=2
+}
+
+\lstset{style=mystyle}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -53,7 +79,7 @@ Ce domaine en plein essor appelle donc à une exploration plus approfondie pour 
 
 Le cœur de ce projet est l'utilisation du circuit intégré AEM30940, conçu spécifiquement pour la récupération d'énergie RF à haute efficacité. Ce composant est capable de convertir les signaux RF disponibles en énergie électrique, même à partir de sources de faible puissance dispersées dans l'environnement urbain. Le dispositif de récupération est intégré avec un Arduino MKR1000, qui facilite la gestion de l'énergie recueillie et le contrôle des capteurs connectés, en l'occurrence le capteur BME680. Ce dernier est utilisé pour surveiller divers paramètres environnementaux tels que la température, la pression, l'humidité et la qualité de l'air, fournissant ainsi des données précieuses pour une multitude d'applications IoT.
 
-En complément de l'aspect hardware, ce projet implique un volet significatif de développement logiciel. La programmation en C/C++ sur la plateforme Arduino est utilisée pour traiter les données des capteurs, exécuter des algorithmes de gestion de l'énergie, et communiquer avec des plateformes IoT telles que Thinger.io. Cette plateforme permet de visualiser et d'analyser les données collectées en temps réel, offrant ainsi une interface utilisateur accessible pour suivre l'état et le rendement des capteurs.
+En complément de l'aspect matériel, ce projet implique également une composante conséquente de développement logiciel. La programmation en C/C++ sur la plateforme Arduino est mise en œuvre non seulement pour le traitement des données issues des capteurs et l'exécution d'algorithmes de gestion de l'énergie, mais aussi pour établir un serveur web embarqué directement sur la carte. Ce serveur permet la visualisation et l'analyse des données collectées en temps réel, offrant ainsi une interface utilisateur propre au projet pour le suivi en direct de l'état et des performances des capteurs, ainsi que la sauvegarde des données directement sur le web intégré.
 
 Cette étude implique une compréhension approfondie des principes de l'électronique, des communications sans fil et du traitement de signal. Elle nécessite également une familiarisation avec les principes de programmation des microcontrôleurs et des compétences en conception de systèmes embarqués. Le projet a été enrichi par une revue exhaustive de la littérature scientifique et des ressources en ligne, permettant de rester à la pointe des dernières avancées technologiques dans le domaine de la récupération d'énergie RF.
 
@@ -97,6 +123,15 @@ Gris             & SCL               & Pin 12           \\ \hline
 \end{figure}
 
 
+
+
+
+
+
+
+
+
+
 \subsection{Capteur BME680}
 Le BME680 est un capteur environnemental avancé qui permet de mesurer la température, l'humidité, la pression atmosphérique et la qualité de l'air (VOC). En ce qui concerne la communication, ce capteur utilise les protocoles I²C et SPI, offrant une flexibilité dans la connexion avec divers microcontrôleurs, y compris l'Arduino MKR1000. Côté consommation énergétique, le BME680 est optimisé pour une faible consommation, essentielle pour prolonger la durée de vie des dispositifs IoT alimentés par batterie. Cette caractéristique est particulièrement importante dans les applications où les capteurs doivent fonctionner de manière prolongée sans maintenance fréquente, rendant le BME680 idéal pour les applications de surveillance environnementale à long terme.
 \begin{figure}[htbp]
@@ -104,6 +139,98 @@ Le BME680 est un capteur environnemental avancé qui permet de mesurer la tempé
     \caption{Capteur MKR1000.}
     \label{fig}
 \end{figure}
+
+Dans le cadre de ce projet, j'ai développé un serveur web en utilisant le langage C/C++ intégré dans l'environnement Arduino. Ce serveur web embarqué me permet de surveiller en temps réel les données captées par les capteurs. Grâce à cette plateforme, il est possible d'accéder instantanément aux mesures de température et d'humidité, et de les visualiser sous forme de graphiques interactifs ou de tableaux de bord dynamiques, offrant ainsi un suivi précis et continu des paramètres environnementaux étudiés. Cette solution logicielle autonome se distingue par sa capacité à fonctionner indépendamment, sans nécessiter de connexion à des services externes ou des plateformes tierces.
+\begin{lstlisting}[language=C++, caption=Variables et constantes WiFi]
+// WiFi Variables and Constants
+char ssid[] = "YIN 15 pro";
+char pass[] = "88888888";
+
+int status = WL_IDLE_STATUS;
+
+WiFiServer server(80);
+WiFiClient client = server.available();
+\end{lstlisting}
+Dans cette section, j'ai configuré le SSID et le mot de passe requis pour la connexion au réseau, initialisé l'état WiFi, créé un objet serveur WiFi et spécifié le port 80, et initialisé un client WiFi.
+
+\begin{lstlisting}[language=C++, caption=Fonctions liées au module WiFi]
+void printWifiStatus()
+{
+  Serial.println("Board Information:");
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+  Serial.println();
+  Serial.println("Network Information: ");
+  Serial.print("SSID: ");
+  Serial.print(WiFi.SSID());
+  long rssi = WiFi.RSSI();
+  Serial.print("signal strength (RSSI): ");
+  Serial.println(rssi);
+}
+
+void printWEB() {
+  if (client) {                        
+    Serial.println("new client");          
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-type:text/html");
+    client.println();
+    // html page
+    client.print("<h1> Donnees recuperees par la carte Arduino MKR1000 : </h1>");
+    client.print("<h2> Temperature : </h2>");
+    client.print(Temp);
+    client.print("<h2> Humidite Relative : </h2>");
+    client.print(RH);
+    // The HTTP response ends with another blank line:
+    client.println();
+    // close the connection:
+    client.stop();
+    Serial.println("client disconnected");
+  }
+}
+\end{lstlisting}
+La fonction printWifiStatus() affiche l'adresse IP de la carte, le SSID du réseau et l'intensité du signal. La fonction printWEB() gère la requête HTTP du client et envoie une simple page HTML affichant les données de température et d'humidité obtenues à partir du capteur.
+
+\begin{lstlisting}[language=C++, caption=Fonction d'obtention des données du capteur]
+void fetch_data()
+{
+  int num_of_bytes = 4;
+  Wire.requestFrom(0x28, num_of_bytes);
+  for(int i = 0; i < num_of_bytes; i++)
+  {
+    Wire.available();
+    if(i == 0)
+      RH_High = Wire.read();
+    else if (i == 1)
+      RH_Low = Wire.read();
+    else if (i == 2)
+      Temp_High = Wire.read();
+    else if (i == 3)
+      Temp_Low = Wire.read();
+  }
+  RH = (extract_bits(RH_High,0,5) * 256 + extract_bits(RH_Low,0,7))/pow(2.0, 14.0)*100;
+  Temp = (extract_bits(Temp_High,0,7) * 64 + extract_bits(Temp_Low,2,7))/pow(2.0, 14.0)*165-40;
+}
+
+int extract_bits(char input, int start_bit, int end_bit)
+{
+  char mask = (1 << (end_bit - start_bit + 1)) - 1;
+  input >>= start_bit;
+  int result = input&mask;
+  return result;
+}
+\end{lstlisting}
+  La fonction fetchdata() lit les données du capteur à partir d'une adresse I2C définie et effectue une manipulation des bits pour extraire les valeurs correctes de température et d'humidité des octets récupérés via la fonction extractbits(). La fonction extractbits() est une fonction d'aide qui manipule les champs de bits et les masques pour extraire des valeurs spécifiques de température et d'humidité des données du capteur. spécifiques de température et d'humidité à partir des données du capteur.
+
+
+Comme le capteur BME680 est connecté à l'arduino via I2C, j'ai utilisé le code important ci-dessus pour implémenter mon web afin de détecter les données en temps réel du capteur et d'assurer la stabilité de l'environnement expérimental.
+
+
+
+
+
+
+
 
 
 
