@@ -7,6 +7,12 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{xcolor}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+\usepackage{array}
+
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 \begin{document}
@@ -52,19 +58,6 @@ En complément de l'aspect hardware, ce projet implique un volet significatif de
 Cette étude implique une compréhension approfondie des principes de l'électronique, des communications sans fil et du traitement de signal. Elle nécessite également une familiarisation avec les principes de programmation des microcontrôleurs et des compétences en conception de systèmes embarqués. Le projet a été enrichi par une revue exhaustive de la littérature scientifique et des ressources en ligne, permettant de rester à la pointe des dernières avancées technologiques dans le domaine de la récupération d'énergie RF.
 
 \section{Matériels et méthodologie}
-
-\subsection{Carte d'évaluation AEM30940}
-Le AEM30940 est un circuit intégré conçu spécifiquement pour la récupération d'énergie RF. Ce module excelle dans la capture de l'énergie des signaux RF disponibles, même ceux à faible puissance, grâce à sa capacité à fonctionner avec des fréquences variant entre 50 MHz et 6 GHz. Son architecture optimisée permet une conversion efficace de l'énergie RF en tension continue utilisable. Ce composant est également caractérisé par son extrême faible consommation d'énergie en veille, ce qui est crucial pour les applications IoT où la minimisation de la consommation d'énergie est essentielle. De plus, le AEM30940 intègre des fonctionnalités de gestion de l'énergie, permettant une charge directe des batteries et le support de multiples sources d'énergie, ce qui le rend particulièrement adapté pour les dispositifs autonomes dans des environnements variés.
-
-
-\subsection{Capteur BME680}
-Le BME680 est un capteur environnemental avancé qui permet de mesurer la température, l'humidité, la pression atmosphérique et la qualité de l'air (VOC). En ce qui concerne la communication, ce capteur utilise les protocoles I²C et SPI, offrant une flexibilité dans la connexion avec divers microcontrôleurs, y compris l'Arduino MKR1000. Côté consommation énergétique, le BME680 est optimisé pour une faible consommation, essentielle pour prolonger la durée de vie des dispositifs IoT alimentés par batterie. Cette caractéristique est particulièrement importante dans les applications où les capteurs doivent fonctionner de manière prolongée sans maintenance fréquente, rendant le BME680 idéal pour les applications de surveillance environnementale à long terme.
-\begin{figure}[htbp]
-    \centerline{\includegraphics[width=0.35\textwidth]{BME680.png}}
-    \caption{Capteur MKR1000.}
-    \label{fig}
-\end{figure}
-
 \subsection{La Carte Arduino MKR1000}
 L'Arduino MKR1000 est une plateforme de développement microcontrôleur adaptée aux projets IoT nécessitant une connectivité Wi-Fi. Opérant à des fréquences CPU de 48 MHz, ce dispositif est caractérisé par ses capacités de communication sans fil intégrées grâce à un module Wi-Fi. Cette fonctionnalité permet non seulement une intégration facile avec divers réseaux, mais contribue également à un déploiement rapide et efficace des applications IoT. Les caractéristiques supplémentaires de l'Arduino MKR1000 incluent sa compatibilité avec une multitude de capteurs et dispositifs via les protocoles de communication standards, ce qui le rend extrêmement versatile pour de multiples usages dans des environnements connectés.
 \begin{figure}[htbp]
@@ -72,6 +65,59 @@ L'Arduino MKR1000 est une plateforme de développement microcontrôleur adaptée
 \caption{Arduino MKR1000.}
 \label{fig}
 \end{figure}
+
+Dans le cadre de mon étude sur l'implémentation pratique des principes de récupération d'énergie, j'ai procédé à l'élaboration d'un circuit électronique en utilisant la carte de développement Arduino MKR1000 comme cœur du système. Cette carte, reconnue pour sa polyvalence et sa facilité d'intégration avec divers capteurs et composants, a été choisie pour orchestrer la collecte et la gestion des données issues des capteurs environnementaux. Pour simuler les conditions de charge et décharge typiques d'une application IoT, deux résistances de 10k ohms ont été intégrées au montage. Leur valeur a été spécifiquement sélectionnée pour représenter une charge moyenne, ce qui permet d'étudier les comportements dynamiques du système lors de différentes conditions opérationnelles. L'architecture du circuit a été soigneusement conçue pour refléter un scénario d'utilisation réel où l'efficience de la récupération d'énergie est cruciale.
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.5\textwidth]{mkr.png}}
+    \caption{Câblage.}
+    \label{fig}
+\end{figure}
+
+
+
+\begin{table}[h!]
+\centering
+\begin{tabular}{|m{2cm}|m{3cm}|m{2cm}|}
+\hline
+\textbf{Couleur} & \textbf{Fonction} & \textbf{MKR1000} \\ \hline
+Noir             & GND               & GND              \\ \hline
+Rouge            & Vcc               & +5V              \\ \hline
+Jaune            & SDA               & Pin 11           \\ \hline
+Gris             & SCL               & Pin 12           \\ \hline
+\end{tabular}
+\caption{Connexion des broches du MKR1000.}
+\label{tab:mkr1000_pins}
+\end{table}
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.5\textwidth]{plan.png}}
+    \caption{Diagramme de brochage et de connexion.}
+    \label{fig}
+\end{figure}
+
+
+\subsection{Capteur BME680}
+Le BME680 est un capteur environnemental avancé qui permet de mesurer la température, l'humidité, la pression atmosphérique et la qualité de l'air (VOC). En ce qui concerne la communication, ce capteur utilise les protocoles I²C et SPI, offrant une flexibilité dans la connexion avec divers microcontrôleurs, y compris l'Arduino MKR1000. Côté consommation énergétique, le BME680 est optimisé pour une faible consommation, essentielle pour prolonger la durée de vie des dispositifs IoT alimentés par batterie. Cette caractéristique est particulièrement importante dans les applications où les capteurs doivent fonctionner de manière prolongée sans maintenance fréquente, rendant le BME680 idéal pour les applications de surveillance environnementale à long terme.
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.2\textwidth]{BME680.png}}
+    \caption{Capteur MKR1000.}
+    \label{fig}
+\end{figure}
+
+
+
+\subsection{Carte d'évaluation AEM30940}
+Le AEM30940 est un circuit intégré conçu spécifiquement pour la récupération d'énergie RF. Ce module excelle dans la capture de l'énergie des signaux RF disponibles, même ceux à faible puissance, grâce à sa capacité à fonctionner avec des fréquences variant entre 50 MHz et 6 GHz. Son architecture optimisée permet une conversion efficace de l'énergie RF en tension continue utilisable. Ce composant est également caractérisé par son extrême faible consommation d'énergie en veille, ce qui est crucial pour les applications IoT où la minimisation de la consommation d'énergie est essentielle. De plus, le AEM30940 intègre des fonctionnalités de gestion de l'énergie, permettant une charge directe des batteries et le support de multiples sources d'énergie, ce qui le rend particulièrement adapté pour les dispositifs autonomes dans des environnements variés.
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.35\textwidth]{aem30940.png}}
+    \caption{Carte d'évaluation AEM30940.}
+    \label{fig}
+\end{figure}
+
+
+
+
 
 
 
