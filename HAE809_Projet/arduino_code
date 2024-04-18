@@ -1,0 +1,133 @@
+#include <SPI.h>
+#include <WiFi101.h>
+#include "CC2D5_Wifi.h"
+#include <Wire.h>
+#include <math.h>
+
+// Sensor Variables and Constants
+float Temp = 0;
+float RH = 0;
+
+char RH_High;
+char RH_Low;
+char Temp_High;
+char Temp_Low;
+
+// WiFi Variables and Constants
+char ssid[] = "YIN 15 pro";
+char pass[] = "88888888";
+
+int status = WL_IDLE_STATUS;
+
+WiFiServer server(80);
+WiFiClient client = server.available();
+
+// Start of the code
+void setup() {
+  // put your setup code here, to run once:
+  Wire.begin();
+  Serial.begin(9600);
+  while(!Serial); // force the opening of the Serial 
+                  // window in order to launch the code
+  // try to connect to the wifi
+  while(status != WL_CONNECTED)
+  {
+    Serial.print("I am trying to connect myself to this wifi network: ");
+    Serial.print(ssid);
+    // connect to the network
+    status = WiFi.begin(ssid, pass);
+    // wait for 10 seconds to give the network card enough time
+    // to connect itself to the wifi network
+    delay(10000);
+  }
+  server.begin();
+  // now that we are connected
+  Serial.println("You're connected to the network");
+
+  Serial.println("----------------------------------");
+  printWifiStatus();
+  Serial.println("----------------------------------");
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  fetch_data();
+  client = server.available();
+  if(client)
+    printWEB();
+  delay(1000);
+}
+
+// Functions related with the wifi module
+void printWifiStatus()
+{
+  Serial.println("Board Information:");
+
+  // print your board's IP address:
+  IPAddress ip = WiFi.localIP();
+  Serial.print("IP Address: ");
+  Serial.println(ip);
+
+  Serial.println();
+  Serial.println("Network Information: ");
+  Serial.print("SSID: ");
+  Serial.print(WiFi.SSID());
+
+  // print the received signal strength
+  long rssi = WiFi.RSSI();
+  Serial.print("signal strength (RSSI): ");
+  Serial.println(rssi);
+}
+
+void printWEB() {
+  if (client) {                             // if you get a client,
+    Serial.println("new client");           // print a message out the serial port
+    // HTTP headers always start with a response code (e.g. HTTP/1.1 200 OK)
+    // and a content-type so the client knows what's coming, then a blank line:
+    client.println("HTTP/1.1 200 OK");
+    client.println("Content-type:text/html");
+    client.println();
+
+    // html page
+    client.print("<h1> Donnees recuperees par la carte Arduino MKR1000 : </h1>");
+    client.print("<h2> Temperature : </h2>");
+    client.print(Temp);
+    client.print("<h2> Humidite Relative : </h2>");
+    client.print(RH);
+
+    // The HTTP response ends with another blank line:
+    client.println();
+    // close the connection:
+    client.stop();
+    Serial.println("client disconnected");
+  }
+}
+
+// Functions to retrieve the sensor Data
+void fetch_data()
+{
+  int num_of_bytes = 4;
+  Wire.requestFrom(0x28, num_of_bytes);
+  for(int i = 0; i < num_of_bytes; i++)
+  {
+    Wire.available();
+    if(i == 0)
+      RH_High = Wire.read();
+    else if (i == 1)
+      RH_Low = Wire.read();
+    else if (i == 2)
+      Temp_High = Wire.read();
+    else if (i == 3)
+      Temp_Low = Wire.read();
+  }
+  RH = (extract_bits(RH_High,0,5) * 256 + extract_bits(RH_Low,0,7))/pow(2.0, 14.0)*100;
+  Temp = (extract_bits(Temp_High,0,7) * 64 + extract_bits(Temp_Low,2,7))/pow(2.0, 14.0)*165-40;
+}
+
+int extract_bits(char input, int start_bit, int end_bit)
+{
+  char mask = (1 << (end_bit - start_bit + 1)) - 1;
+  input >>= start_bit;
+  int result = input&mask;
+  return result;
+}
