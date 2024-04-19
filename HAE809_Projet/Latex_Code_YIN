@@ -136,7 +136,7 @@ Gris             & SCL               & Pin 12           \\ \hline
 Le BME680 est un capteur environnemental avancé qui permet de mesurer la température, l'humidité, la pression atmosphérique et la qualité de l'air (VOC). En ce qui concerne la communication, ce capteur utilise les protocoles I²C et SPI, offrant une flexibilité dans la connexion avec divers microcontrôleurs, y compris l'Arduino MKR1000. Côté consommation énergétique, le BME680 est optimisé pour une faible consommation, essentielle pour prolonger la durée de vie des dispositifs IoT alimentés par batterie. Cette caractéristique est particulièrement importante dans les applications où les capteurs doivent fonctionner de manière prolongée sans maintenance fréquente, rendant le BME680 idéal pour les applications de surveillance environnementale à long terme.
 \begin{figure}[htbp]
     \centerline{\includegraphics[width=0.2\textwidth]{BME680.png}}
-    \caption{Capteur MKR1000.}
+    \caption{Capteur BME680.}
     \label{fig}
 \end{figure}
 
@@ -260,6 +260,7 @@ Il s'agit d'une version simplifiée du circuit, la carte AEM30940 remplit essent
 
 Il s'agit d'une note d'application pour la configuration, qui fournit des informations sur cette configuration. La configuration que j'ai choisie est "Single-cell supercapacitor"
 
+Dans le cadre de la configuration de mon banc d'essai, une source RF opérant à 2,4 GHz est directement connectée à l'entrée haute tension de la carte d'évaluation AEM30940. La puissance de sortie est configurée à 15 dBm. Faute de disposer d'un émetteur de puissance adéquate, j'ai opté pour l'utilisation d'une antenne spécifique adaptée à cette fréquence. De plus, une résistance de charge de 10 kilo-ohms a été connectée à la sortie pour simuler un scénario de consommation réaliste et mesurer efficacement les performances du dispositif sous test.
 
 
 
@@ -267,22 +268,55 @@ Il s'agit d'une note d'application pour la configuration, qui fournit des inform
 
 
 
-\section{Les capteurs (sans fil) : étude des différents protocoles et de la consommation électrique}
 
-\subsection{ Introduction (contexte sur l’utilisation des capteurs sans fil)}
-Les capteurs sans fil sont devenus essentiels dans de nombreux domaines tels que l'automatisation industrielle, la surveillance environnementale, et la gestion intelligente des bâtiments. Leur capacité à fonctionner sans connexions physiques permet une flexibilité et une adaptabilité accrues dans les déploiements sur de vastes zones ou dans des endroits difficiles d'accès. Toutefois, ces dispositifs doivent gérer efficacement leur consommation d'énergie pour prolonger leur durée de vie et réduire la nécessité de maintenance.
+\section{Résultats}
+
+\subsection{Étude et mise en œuvre d’un PMU}
+Tout d'abord, la configuration du supercondensateur à cellule unique que nous avons utilisée devrait théoriquement donner une tension de charge de 1,8 V et la tension du supercondensateur devrait être comprise entre 2,2 V et 2,3 V. En pratique, l'image obtenue est très similaire à la théorie.
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.5\textwidth]{pmu1.png}}
+    \caption{Variations de tension de charge et de condensateur.}
+    \label{fig}
+\end{figure}
+
+Initialement, j'ai opté pour l'utilisation de l'entrée haute tension, dont le manuel indique une valeur d'entrée théorique inférieure à 20 dBm. J'ai donc sélectionné une puissance d'entrée de 15 dBm et installé des atténuateurs de 20 dBm, tant en externe qu'en interne, afin de respecter les conditions spécifiées.
+
+Nous pouvons obtenir une image comme celle-ci sur le spectromètre
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.5\textwidth]{high.png}}
+    \caption{2.4 GHz with high input.}
+    \label{fig}
+\end{figure}
+La puissance réelle mesurée est d'environ -26,8dbm, car il y a diverses pertes dans le matériel et dans la transmission de la distance.
 
 
-Dans le cadre de notre étude, le capteur BME680 a été choisi pour sa capacité à mesurer avec précision plusieurs paramètres environnementaux tels que la température, l'humidité, la pression atmosphérique, et la qualité de l'air. Ce choix s'appuie sur sa polyvalence et sa fiabilité dans la collecte de données environnementales précises, ce qui est crucial pour nos tests et analyses. Pour mener à bien nos expérimentations, nous avons également utilisé la plateforme Arduino MKR1000, qui se distingue par sa facilité d'utilisation et sa capacité à intégrer divers capteurs et modules via des protocoles de communication tels que I2C et SPI. L'Arduino MKR1000, grâce à sa connectivité Wi-Fi intégrée, a permis une transmission efficace des données récoltées par le BME680, facilitant ainsi la surveillance en temps réel et la collecte de données à distance, deux aspects fondamentaux de notre projet de recherche. Cette configuration technologique met en lumière la manière dont les capteurs sans fil, associés à des microcontrôleurs avancés, peuvent transformer les méthodes de surveillance environnementale et d'analyse des données.
+La Figure 10 illustre la courbe de charge d'un supercondensateur à partir d'un démarrage à froid jusqu'à l'atteinte de la tension de travail minimale (V CHRDY), ainsi que la courbe de décharge depuis la tension maximale (V OVCH) jusqu'à la tension de maintien minimale (V OVDIS). Quant à la Figure 11, elle met en exergue l'efficacité du PMU sous différentes conditions de charge au cours des cycles de charge et de décharge du supercondensateur, soulignant la gestion optimale de l'énergie tout au long de l'opération.
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.5\textwidth]{charge.png}}
+    \caption{Surveillance du seuil de tension.}
+    \label{fig}
+\end{figure}
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.5\textwidth]{effi.png}}
+    \caption{Courbe d'efficacité.}
+    \label{fig}
+\end{figure}
+
+
+\subsection{Surveillance de l'environnement expérimental}
+Chaque session de test est conduite sur une période d'une heure, durant laquelle les variations environnementales sont suivies en temps réel grâce à un dispositif programmé avec une carte Arduino MKR1000. Cette configuration intègre un capteur BME680, qui permet de mesurer précisément les fluctuations de température et d'humidité tout au long de l'expérience. Ces données sont essentielles pour évaluer l'impact des conditions ambiantes sur les résultats expérimentaux.
+
+\begin{figure}[htbp]
+    \centerline{\includegraphics[width=0.5\textwidth]{temp.png}}
+    \caption{Température et humidité du laboratoire au fil du temps.}
+    \label{fig}
+\end{figure}
 
 
 
-\subsection{Les différents protocoles de communications}
-Les protocoles de communication pour les capteurs sans fil varient en fonction de la portée, de l'énergie, et de la bande passante nécessaire. Des standards tels que Zigbee, Bluetooth Low Energy (BLE), et LoRa sont couramment utilisés. Zigbee est préféré pour les applications nécessitant une haute fréquence de communication et une faible consommation d'énergie. BLE est idéal pour les dispositifs portables en raison de sa faible consommation d'énergie et de sa bonne portée. LoRa, quant à lui, offre une portée beaucoup plus étendue, ce qui le rend parfait pour les applications de surveillance à grande échelle.
-
-En complément à ces technologies, le BME680, un capteur environnemental avancé, utilise les protocoles de communication I2C et SPI, ce qui le rend extrêmement versatile pour différentes configurations système. L'I2C est souvent choisi pour des applications nécessitant des connexions de capteurs multiples sur un même bus avec une configuration de câblage minimaliste, rendant le système économique et efficace énergétiquement. D'autre part, le protocole SPI est utilisé pour des applications où des vitesses de transmission de données plus élevées sont requises, offrant des performances supérieures pour les tâches critiques en temps réel.
-
-L'utilisation de ces deux protocoles permet au BME680 de s'adapter à une large gamme d'applications IoT, depuis la surveillance de la qualité de l'air intérieur jusqu'à des dispositifs portables, tout en assurant une gestion optimale de la consommation d'énergie. Cela souligne l'importance de choisir le bon protocole de communication en fonction des spécificités de l'application et des exigences en termes de performance, de coût et de consommation énergétique.
 
 
 
