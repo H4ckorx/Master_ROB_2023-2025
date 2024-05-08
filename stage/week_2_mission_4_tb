@@ -1,0 +1,44 @@
+//这是实习第二的任务4：掌握了 fpga 设计开发流程，这个任务需要完成基本的逻辑接口设计：实现数码管的动态扫描显示（实现计时秒表，从 0-9s 循环显示）
+
+//使用的是vivado 2023版本的verilog语言
+
+//非最终版本，会根据实习进度实时更新
+
+`timescale 1ns / 1ps
+
+module stopwatch_timer_tb;
+
+// 输入和输出
+reg clk;
+reg reset;
+wire [3:0] q;
+
+// 实例化被测模块
+stopwatch_timer uut (
+    .clk(clk),
+    .reset(reset),
+    .q(q)
+);
+
+// 生成时钟信号
+initial begin
+    clk = 0;
+    forever #10 clk = ~clk;  // 生成50MHz时钟，周期20ns
+end
+
+// 测试序列
+initial begin
+    // 初始化
+    reset = 1;
+    #40;  // 维持复位信号一段时间
+    reset = 0;
+    #500000000;  // 运行一段时间观察输出
+    $stop;  // 停止仿真
+end
+
+// 监控输出和计数器
+initial begin
+    $monitor("Time=%t, Reset=%b, Output=%b, Counter=%d", $time, reset, q, uut.counter);
+end
+
+endmodule
