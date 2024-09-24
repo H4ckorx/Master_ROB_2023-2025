@@ -23,7 +23,7 @@ import time
 import math
 import matplotlib.pyplot as plt
 from control.matlab import *
-
+import sympy as sp
 
 if __name__ == '__main__':
     
@@ -34,6 +34,7 @@ if __name__ == '__main__':
     h=np.array([0,0,0,0,0,0])
     q = np.array([0.0, 0.0, 0.0, 0.0, 0.0, 0.0])
     
+
 
     if clientID!=-1:
         print ('Connected to remote API server')
@@ -67,44 +68,203 @@ if __name__ == '__main__':
     #Question 1:
     ### 
 
-    def MatrixTransformation(uj):
+        a2 = 0.612
+        a3 = 0.5723
+        r1 = 0.1273
+        r2 = 0.163941
+        r5 = 0.1157
+        r7 = 0.0922
 
-        uj = [alpha_j-1    a_j-1    theta_j    d_j]
+        theta_1, theta_2 ,theta_3 , theta_4 , theta_5 , theta_6 =sp.symbols('theta_1 theta_2 theta_3 theta_4 theta_5 theta_6')
+        theta_1val= theta_2val =theta_3val = theta_4val=  theta_5val= theta_6val=0
+        u1 = sp.Matrix([0,0,theta_1,r1])
+        u2 = sp.Matrix([sp.pi/2,0,theta_2,r2])
+        u3 = sp.Matrix([0,-a2,theta_3,0])
+        u4 = sp.Matrix([0,-a3,theta_4,0])
+        u5 = sp.Matrix([sp.pi/2,0,theta_5,r5])
+        u6 = sp.Matrix([-sp.pi/2,0,theta_6,0])
 
-        Rot_x = np.array([
-            [1,0,0,0]
-            [0,np.cos(alpha_j-1),-np.sin(alpha_j-1),0]
-            [0,np.sin(alpha_j-1),np.cos(alpha_j-1),0]
-            [0,0,0,1]
-            ])  
+        def MatrixTransformation(uj):
+
+                
+
+                Rot_x = sp.Matrix([
+                    [1,0,0,0],
+                    [0,sp.cos(uj[0]),-sp.sin(uj[0]),0],
+                    [0,sp.sin(uj[0]),sp.cos(uj[0]),0],
+                    [0,0,0,1]
+                    ])  
+                
+
+                Trans_x = sp.Matrix([
+                    [1,0,0,uj[1]],
+                    [0,1,0,0],
+                    [0,0,1,0],
+                    [0,0,0,1]
+                ])
+
+                Rot_z = sp.Matrix([
+                    [sp.cos(uj[2]),-sp.sin(uj[2]),0,0],
+                    [sp.sin(uj[2]),sp.cos(uj[2]),0,0],
+                    [0,0,1,0,],
+                    [0,0,0,1]
+                ])
+            
+                Trans_z = sp.Matrix([
+                    [1,0,0,0],
+                    [0,1,0,0],
+                    [0,0,1,uj[3]],
+                    [0,0,0,1]
+                ])
+
+                T = Rot_x @ Trans_x @ Rot_z @ Trans_z
+
+                return T
+
+        T01 = MatrixTransformation(u1)
+        T12 = MatrixTransformation(u2)
+        T23 = MatrixTransformation(u3)
+        T34 = MatrixTransformation(u4)
+        T45 = MatrixTransformation(u5)
+        T56 = MatrixTransformation(u6)
+        O67 = np.array([[0],[0],[r7],[1]])
+
+        ###Je calcule les matrices pour préparer de déterminer les éléments de matrice Jacobien###
+        T02 = T01 @ T12
+        T03 = T02 @ T23
+        T04 = T03 @ T34
+        T05 = T04 @ T45
+        T06 = T05 @ T56 
+        p7 = T06 @ O67
+        Xi = p7[:3,0]
+        Ri = T06[:3,:3]
+        tf = 20 #La durée de movement par exemple
+        Xf = np.array([0.5],[0.5,[0.5]])
+        theta_angle = np.pi
+
+
+        ###
+        #The position of end-effector is (delete # to show p7)
+        #print(p7)
+        print("----------------------------------------------------------------------------------------------------------")
+        print("\n C'est pour montrer la position de l'organe terminal\nQuand les angles sont zeros\n")
+        #Quand les angls égalent 0, la position de end-effector:
+        p7_0 = sp.lambdify((theta_1, theta_2, theta_3, theta_4, theta_5, theta_6), p7)(theta_1val, theta_2val, theta_3val, theta_4val, theta_5val, theta_6val)
+        print(p7_0)
+        
+        print("----------------------------------------------------------------------------------------------------------")
+        print("\n C'est pour montrer le matrice de Jacobien\nQuand les angles sont zeros\n")
+
+        #Function de Jacobien
+        def Jacobien(theta_1val,theta_2val,theta_3val, theta_4val, theta_5val, theta_6val):
+            x = p7[0]
+            y = p7[1]
+            z = p7[2]
+            
+
+            alpha = theta_1 - theta_5
+            beta = -theta_2 - theta_3 - theta_4 - theta_6
+            gamma = np.pi/2
+
+            J11 = sp.diff(x,theta_1)
+            J12 = sp.diff(x,theta_2)
+            J13 = sp.diff(x,theta_3)
+            J14 = sp.diff(x,theta_4)
+            J15 = sp.diff(x,theta_5)
+            J16 = sp.diff(x,theta_6)
+
+            J21 = sp.diff(y,theta_1)
+            J22 = sp.diff(y,theta_2)
+            J23 = sp.diff(y,theta_3)
+            J24 = sp.diff(y,theta_4)
+            J25 = sp.diff(y,theta_5)
+            J26 = sp.diff(y,theta_6)
+
+            J31 = sp.diff(z,theta_1)
+            J32 = sp.diff(z,theta_2)
+            J33 = sp.diff(z,theta_3)
+            J34 = sp.diff(z,theta_4)
+            J35 = sp.diff(z,theta_5)
+            J36 = sp.diff(z,theta_6)
+
+            J41 = sp.diff(gamma,theta_1)
+            J42 = sp.diff(gamma,theta_2)
+            J43 = sp.diff(gamma,theta_3)
+            J44 = sp.diff(gamma,theta_4)
+            J45 = sp.diff(gamma,theta_5)
+            J46 = sp.diff(gamma,theta_6)
+
+            J51 = sp.diff(beta,theta_1)
+            J52 = sp.diff(beta,theta_2)
+            J53 = sp.diff(beta,theta_3)
+            J54 = sp.diff(beta,theta_4)
+            J55 = sp.diff(beta,theta_5)
+            J56 = sp.diff(beta,theta_6)
+
+            J61 = sp.diff(alpha,theta_1)
+            J62 = sp.diff(alpha,theta_2)
+            J63 = sp.diff(alpha,theta_3)
+            J64 = sp.diff(alpha,theta_4)
+            J65 = sp.diff(alpha,theta_5)
+            J66 = sp.diff(alpha,theta_6)
+
+            J = np.array([[J11,J12,J13,J14,J15,J16],
+                        [J21,J22,J23,J24,J25,J26],
+                        [J31,J32,J33,J34,J35,J36],
+                        [J41,J42,J43,J44,J45,J46],
+                        [J51,J52,J53,J54,J55,J56],
+                        [J61,J62,J63,J64,J65,J66]])
+            J_num = np.array([[sp.lambdify((theta_1, theta_2, theta_3, theta_4, theta_5, theta_6), entry)(theta_1val, theta_2val, theta_3val, theta_4val, theta_5val, theta_6val) for entry in row] for row in J])
+
+            return J_num
+
+
+        print("The matrix Jacobien est: \n")
+        #Quand les angles égalent 0, le matrice de Jacobien egale: 
+        J1 = Jacobien(0,0,0,0,0,0)
+        print(J1)
+
+
+
+
+        print("----------------------------------------------------------------------------------------------------------")
+        ###
+        #I treated the questions 1  2  3 in a same function
+
+        def kinematics(joint_pos):
+            deta1,deta2,deta3,deta4,deta5,deta6 = joint_pos
+            
+            u1 = sp.Matrix([0,0,deta1,r1])
+            u2 = sp.Matrix([sp.pi/2,0,deta2,r2])
+            u3 = sp.Matrix([0,-a2,deta3,0])
+            u4 = sp.Matrix([0,-a3,deta4,0])
+            u5 = sp.Matrix([sp.pi/2,0,deta5,r5])
+            u6 = sp.Matrix([-sp.pi/2,0,deta6,0])   
+            T06 = MatrixTransformation(u1)*MatrixTransformation(u2)*MatrixTransformation(u3)*MatrixTransformation(u4)*MatrixTransformation(u5)*MatrixTransformation(u6)
+            J = Jacobien(deta1,deta2,deta3,deta4,deta5,deta6)
+            print("\nC'est la position de l'organe terminal\n avec la fonction kinematics\n")
+            print(T06)
+            print("\nC'est la matrice de Jacobien\n avec la fonction kinematics\n")
+            print(J)
+
+            return T06,J
         
 
-        Trans_x = np.array([
-            [1,0,0,a_j-1]
-            [0,1,0,0]
-            [0,0,1,0]
-            [0,0,0,1]
-        ])
+        Q = ([2,2,2,2,2,2])#On entre les angles de l'articulaire par example
+        A,B = kinematics(Q)#On obtient le matrice de transformation et la matrice Jacobien 
 
-        Rot_z = np.array([
-            [np.cos(theta_j),-np.sin(theta_j),0,0]
-            [np.sin(theta_j),np.cos(theta_j),0,0]
-            [0,0,1,0,]
-            [0,0,0,1]
-        ])
-    
-        Trans_z = np.array([
-            [1,0,0,0]
-            [0,1,0,0]
-            [0,0,1,r_j]
-            [0,0,0,1]
-        ])
+        ###
+        #Question 4:Generat	the trajectory
+        ###
+        
+        def generate_trajectory(t):
+             r = 10 * (t/tf)**3 - 15*(t/tf)**4 + 6 * (t/tf)**5
+             x_d = Xi + r * (Xf-Xi)
+             R_d = Ri * rot
+            
+        
 
-        T = Rot_x * Trans_x * Rot_z * Trans_z
-
-    return T
-
-
+        
 
 
     else:
