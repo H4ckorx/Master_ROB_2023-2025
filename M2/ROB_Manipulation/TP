@@ -257,12 +257,51 @@ if __name__ == '__main__':
         #Question 4:Generat	the trajectory
         ###
         
-        def generate_trajectory(t):
-             r = 10 * (t/tf)**3 - 15*(t/tf)**4 + 6 * (t/tf)**5
-             x_d = Xi + r * (Xf-Xi)
-             R_d = Ri * rot
+        def generate_trajectory(t, tf, Xi, Xf, Ri, u, theta):
+            # r(t) the 5th order	polynomial equation
+            r = 10 * (t/tf)**3 - 15 * (t/tf)**4 + 6 * (t/tf)**5
             
+            # position desired
+            x_d = Xi + r * (Xf - Xi)
+            
+            # rotation angle
+            r_theta = r * theta
+            
+            # matrix rotation rot(u, r(t) * theta)
+            ux, uy, uz = u  
+            cos_r_theta = np.cos(r_theta)
+            sin_r_theta = np.sin(r_theta)
+            one_minus_cos = 1 - cos_r_theta
+            
+            
+            R_rot = np.array([
+                [ux**2 * one_minus_cos + cos_r_theta, ux * uy * one_minus_cos - uz * sin_r_theta, ux * uz * one_minus_cos + uy * sin_r_theta],
+                [ux * uy * one_minus_cos + uz * sin_r_theta, uy**2 * one_minus_cos + cos_r_theta, uy * uz * one_minus_cos - ux * sin_r_theta],
+                [ux * uz * one_minus_cos - uy * sin_r_theta, uy * uz * one_minus_cos + ux * sin_r_theta, uz**2 * one_minus_cos + cos_r_theta]
+            ])
+            
+            # matrix orientation final
+            R_d = np.dot(Ri, R_rot)
+            
+            return x_d, R_d
+            
+        def error(x_desired,R_d,p7):
+            ne = T06[:3,0]
+            se = T06[:3,1]
+            ae = T06[:3,2]
+            nd = R_d[:3,0]
+            sd = R_d[:3,1]
+            ad = R_d[:3,2]
+            x_actual = p7
+            ep = x_desired - x_actual
+            eo = 1/2(np.cross(ne,nd)+np.cross(se,sd)+np.cross(ae,ad))
+
+            return ep,eo
         
+
+        
+
+            
 
         
 
