@@ -1,0 +1,142 @@
+import numpy as np
+import cv2
+from PIL import Image
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import os
+os.environ["QT_QPA_PLATFORM"] = "offscreen"
+import matplotlib
+matplotlib.use('Agg')
+
+
+
+def analyze_image(image_path):
+    """
+    导入照片并分析分辨率。
+
+    参数:
+    
+    image_path: 照片的文件路径
+    返回:
+    width: 图像的宽度（像素）
+    height: 图像的高度（像素）
+    """# 使用 OpenCV 读取图像
+    image = cv2.imread(image_path)
+
+    if image is None:
+        raise ValueError("无法读取图像，请检查文件路径。")
+
+    # 获取图像的分辨率
+    height, width = image.shape[:2]
+    print(f"图像分辨率为: {width}x{height} 像素")
+
+    return width, height
+
+
+def calculate_angles(x, y, f, theta, phi):
+    """
+    根据照片上的像素点 (x, y)，焦距 f，照相机旋转角度 theta 和 phi，
+    计算从照相机中心移动到该像素点所需的水平角度和垂直角度变化。
+
+    参数：
+    
+    x, y: 像素点在照片上的坐标，照片正中心为 (0, 0)
+    f: 焦距
+    theta: 照相机已经旋转的水平角度
+    phi: 照相机已经旋转的垂直角度
+
+    返回：
+    d_theta: 水平角度的变化
+    d_phi: 垂直角度的变化
+    """
+
+    # 根据已知公式计算中间变量
+    a = f / np.tan(phi)
+    b = a / np.cos(90 - phi)
+
+
+    A = (y + a) / np.cos(np.arctan((a / b) * (y / (x + a))))
+
+
+    d_theta = np.arctan(y / ((a + x) * np.sin(phi)))
+    d_phi = np.arctan((A - a) / f)
+
+    return d_theta, (d_phi)
+
+
+
+
+
+def project_to_rotated_sphere(image, f, camera_theta, camera_phi):
+    """
+    将图像的像素点映射到球形曲面上，半径为焦距 f，考虑相机旋转角度 theta 和 phi。
+    """
+    w,h = analyze_image(image)
+    x_c = w / 2  # 图像的水平中心
+    y_c = h / 2  # 图像的垂直中心
+
+    # 初始化数组来存储球面上的三维点和颜色
+    sphere_points = np.zeros((h, w, 3))
+    colors = np.zeros((h, w, 3))
+
+    # 遍历图像的每个像素点
+    for y in range(h):
+        for x in range(w):
+            # 计算像素点相对于中心的偏移
+            dx = x - x_c
+            dy = y - y_c
+
+            # 使用相机的旋转角度来计算像素点的映射角度
+            theta = np.arctan2(dx, f) + camera_theta
+            phi = np.arctan2(dy, f) + camera_phi
+
+            # 计算球面上的三维坐标
+            X = f * np.sin(phi) * np.cos(theta)
+            Y = f * np.sin(phi) * np.sin(theta)
+            Z = f * np.cos(phi)
+
+            # 存储球面上的三维坐标
+            sphere_points[y, x] = [X, Y, Z]
+
+            # 存储颜色信息
+            colors[y, x] = image[y, x] / 255.0  # 将 BGR 颜色值归一化到 [0, 1] 范围
+
+    return sphere_points, colors
+
+def plot_sphere_points(sphere_points, colors):
+    """
+    可视化球面上的点，并应用颜色。
+    """
+    x = sphere_points[:, :, 0].flatten()
+    y = sphere_points[:, :, 1].flatten()
+    z = sphere_points[:, :, 2].flatten()
+    color_values = colors.reshape(-1, 3)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # 使用颜色来绘制球面上的点
+    ax.scatter(x, y, z, c=color_values, marker='o')
+    plt.savefig('sphere_points15.png')
+
+# 确保角度转换为弧度
+x=1000
+y = 500
+f = 10000  # 焦距
+theta =-30  # 照相机的水平旋转角度
+phi = 60    # 照相机的垂直旋转角度
+
+d_theta, d_phi = calculate_angles(x, y, f, theta, phi)
+print(f"水平角度变化: {d_theta} 度")
+print(f"垂直角度变化: {d_phi} 度")
+
+
+image = cv2.imread('curtis.jpg')
+if image is None:
+    raise ValueError("无法读取图像，请检查文件路径。")
+
+sphere_points, colors = project_to_rotated_sphere(image, f, theta, phi)
+
+print("球面上点的三维坐标：")
+#print(sphere_points)
+plot_sphere_points(sphere_points, colors)
