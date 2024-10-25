@@ -9,7 +9,6 @@ import matplotlib
 matplotlib.use('Agg')
 
 
-
 def analyze_image(image_path):
     """
     导入照片并分析分辨率。
@@ -20,16 +19,14 @@ def analyze_image(image_path):
     返回:
     width: 图像的宽度（像素）
     height: 图像的高度（像素）
-    """# 使用 OpenCV 读取图像
+    """
     image = cv2.imread(image_path)
-
     if image is None:
         raise ValueError("无法读取图像，请检查文件路径。")
 
     # 获取图像的分辨率
     height, width = image.shape[:2]
     print(f"图像分辨率为: {width}x{height} 像素")
-
     return width, height
 
 
@@ -50,30 +47,33 @@ def calculate_angles(x, y, f, theta, phi):
     d_phi: 垂直角度的变化
     """
 
+    # 将角度转换为弧度
+    theta = np.radians(theta)
+    phi = np.radians(phi)
+
     # 根据已知公式计算中间变量
     a = f / np.tan(phi)
-    b = a / np.cos(90 - phi)
-
+    b = a / np.cos(np.radians(90) - phi)  # 90度也要转成弧度
 
     A = (y + a) / np.cos(np.arctan((a / b) * (y / (x + a))))
-
 
     d_theta = np.arctan(y / ((a + x) * np.sin(phi)))
     d_phi = np.arctan((A - a) / f)
 
-    return d_theta, (d_phi)
-
-
-
+    return np.degrees(d_theta), np.degrees(d_phi)  # 转换回角度制返回
 
 
 def project_to_rotated_sphere(image, f, camera_theta, camera_phi):
     """
     将图像的像素点映射到球形曲面上，半径为焦距 f，考虑相机旋转角度 theta 和 phi。
     """
-    w,h = analyze_image(image)
+    h, w = image.shape[:2]
     x_c = w / 2  # 图像的水平中心
     y_c = h / 2  # 图像的垂直中心
+
+    # 将角度转换为弧度
+    camera_theta = np.radians(camera_theta)
+    camera_phi = np.radians(camera_phi)
 
     # 初始化数组来存储球面上的三维点和颜色
     sphere_points = np.zeros((h, w, 3))
@@ -103,6 +103,8 @@ def project_to_rotated_sphere(image, f, camera_theta, camera_phi):
 
     return sphere_points, colors
 
+
+
 def plot_sphere_points(sphere_points, colors):
     """
     可视化球面上的点，并应用颜色。
@@ -117,26 +119,37 @@ def plot_sphere_points(sphere_points, colors):
 
     # 使用颜色来绘制球面上的点
     ax.scatter(x, y, z, c=color_values, marker='o')
-    plt.savefig('sphere_points15.png')
+    # 绘制完整的参考球面
+    u = np.linspace(0, 2 * np.pi, 100)  # 从 0 到 2pi 画完整的圆
+    v = np.linspace(0, np.pi, 100)  # 从 0 到 pi 画完整的球面
+    u, v = np.meshgrid(u, v)
 
-# 确保角度转换为弧度
-x=1000
-y = 500
+    X_ref = f * np.sin(v) * np.cos(u)
+    Y_ref = f * np.sin(v) * np.sin(u)
+    Z_ref = f * np.cos(v)
+
+    # 绘制参考球面
+    ax.plot_wireframe(X_ref, Y_ref, Z_ref, color='r', linewidth=0.5)
+
+    plt.savefig('full_sphere_with_reference4.png')
+
+
+# 设置焦距和角度
 f = 10000  # 焦距
-theta =-30  # 照相机的水平旋转角度
-phi = 60    # 照相机的垂直旋转角度
+theta = -30  # 照相机的水平旋转角度 (角度)
+phi = 90    # 照相机的垂直旋转角度 (角度)
 
-d_theta, d_phi = calculate_angles(x, y, f, theta, phi)
+# 调用函数计算角度变化
+d_theta, d_phi = calculate_angles(1000, 500, f, theta, phi)
 print(f"水平角度变化: {d_theta} 度")
 print(f"垂直角度变化: {d_phi} 度")
 
-
+# 读取图像并映射到球面
 image = cv2.imread('curtis.jpg')
 if image is None:
     raise ValueError("无法读取图像，请检查文件路径。")
 
 sphere_points, colors = project_to_rotated_sphere(image, f, theta, phi)
 
-print("球面上点的三维坐标：")
-#print(sphere_points)
+# 可视化球面上的点
 plot_sphere_points(sphere_points, colors)
